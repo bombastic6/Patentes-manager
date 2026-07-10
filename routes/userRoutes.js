@@ -3,7 +3,6 @@ import passport from 'passport';
 import multer from 'multer';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User, Invitado, Colab, Admin, Cliente } from '../models/user.js';
-// CORRECCIÓN: Nombre en minúscula para compatibilidad con Linux (Render)
 import Documento from '../models/documento.js'; 
 
 const router = express.Router();
@@ -63,23 +62,9 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
   }
 };
 
-// Depuración: Verifica que las variables existan antes de configurar Passport
-console.log("Debug - ClientID existe:", !!process.env.GOOGLE_CLIENT_ID);
-console.log("Debug - ClientSecret existe:", !!process.env.GOOGLE_CLIENT_SECRET);
-
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID || "203058244125-vfh9eugdb4q9ecsdqbs81u4sjdq9p318.apps.googleusercontent.com",
     clientSecret: process.env.GOOGLE_CLIENT_SECRET || "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",
-    callbackURL: "https://tupatente-backend.onrender.com/api/users/auth/google/callback"
-  },
-  googleVerify
-));
-
-passport.use
-console.log("Debug - ClientID:", process.env.GOOGLE_CLIENT_ID ? "Cargado" : "NO CARGADO");
-console.log("Debug - ClientSecret:", process.env.GOOGLE_CLIENT_SECRET ? "Cargado" : "NO CARGADO");(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET, // Asegúrate de que coincida con el nombre en Render
     callbackURL: "https://tupatente-backend.onrender.com/api/users/auth/google/callback"
   },
   googleVerify
@@ -107,7 +92,9 @@ router.get('/auth/google/callback',
     logoutTemporalDesarrollo = false; 
 
     const user = req.user;
-    const base = "https://tupatente-frontend.onrender.com";
+    
+    // REDIRECCIÓN DIRECTA AL BACKEND DONDE ESTÁN LOS HTML
+    const base = "https://tupatente-backend.onrender.com";
 
     if (user.rol === 'INVITADO') {
       const comuna = user.comuna_tramite;
