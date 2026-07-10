@@ -80,6 +80,7 @@
 </div>
 
 <script>
+    const API_BASE = "https://tupatente-backend.onrender.com";
     let DATA_TERRITORIAL = {}, comunasSeleccionadas = [];
     const selectRegion = document.getElementById('selectorRegion'), selectComuna = document.getElementById('selectorComuna'), tagsContainer = document.getElementById('tagsContainer');
 
@@ -91,7 +92,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/comunas/regiones-y-comunas').then(r=>r.json());
+            const res = await fetch(`${API_BASE}/api/comunas/regiones-y-comunas`).then(r=>r.json());
             if (res.success) {
                 DATA_TERRITORIAL = res.data;
                 selectRegion.innerHTML = '<option value="">-- Elige una región --</option>';
@@ -106,7 +107,7 @@
         const dataObj = Object.fromEntries(formData.entries());
 
         try {
-            const res = await fetch('http://localhost:3000/api/users/login', {
+            const res = await fetch(`${API_BASE}/api/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(dataObj)
@@ -163,7 +164,7 @@
         formData.append('comunas_data', JSON.stringify(comunasSeleccionadas));
 
         try {
-            const res = await fetch('http://localhost:3000/api/users/registrar-colaborador', {
+            const res = await fetch(`${API_BASE}/api/users/registrar-colaborador`, {
                 method: 'POST',
                 body: formData
             });

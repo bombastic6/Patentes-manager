@@ -414,24 +414,27 @@
 
   </main>
 
+<!-- ... (Mantén todo el <head> y el HTML hasta el <script>) ... -->
+
 <script>
+  // URL DE PRODUCCIÓN
+  const API_BASE = "https://tupatente-backend.onrender.com";
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL
-      const response = await fetch('/api/users/perfil-actual');
+      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL (Ruta actualizada)
+      const response = await fetch(`${API_BASE}/api/users/perfil-actual`);
       const resultado = await response.json();
 
       if (response.ok && resultado.success && resultado.usuario) {
         const u = resultado.usuario;
         
-        // Mostrar nombre en la barra de navegación
         if (u.nombre) {
           document.getElementById('navbarUser').textContent = `Hola, ${u.nombre}`;
         } else {
           document.getElementById('navbarUser').textContent = 'Sesión Activa';
         }
 
-        // Mostrar tipo de patente identificada
         if (u.patente_primaria) {
           let descPatente = `Tu clasificación identificada es: **Patente ${u.patente_primaria}**.`;
           if (u.patente_secundaria) {
@@ -440,42 +443,27 @@
           document.getElementById('txtPatenteTipo').innerHTML = descPatente.replace(/\*\*/g, '<strong>').replace(/\*/g, '<i>');
         }
 
-        // Elementos del DOM del Canal de Tramitación
         const btnTramite = document.getElementById('btnTramiteLocal');
         const txtInstruccion = document.getElementById('txtInstruccionCanal');
 
-        // =================================================================
-        // CASO 1: TIPO TRAMITE 1 -> REDIRECCIÓN DIRECTA A PYME ÁGIL
-        // =================================================================
         if (u.tipo_tramite_comuna === 1 || u.tipo_tramite_comuna === '1') {
           btnTramite.href = "https://www.registrodeempresasysociedades.cl/Patentes/Default.aspx";
           btnTramite.innerHTML = `Iniciar Trámite Pyme Ágil ↗`;
+          txtInstruccion.innerHTML = `🚀 <strong>¡Canal Integrado Pyme Ágil!</strong> <br>Presiona el botón inferior para ir a la plataforma del Ministerio de Economía e iniciar de forma inmediata la tramitación simplificada de tu patente comercial.`;
           
-          txtInstruccion.innerHTML = `
-            🚀 <strong>¡Canal Integrado Pyme Ágil!</strong> <br>
-            Presiona el botón inferior para ir a la plataforma del Ministerio de Economía e iniciar de forma inmediata la tramitación simplificada de tu patente comercial.
-          `;
-          
-          if (u.comuna_tramite && u.comuna_tramite !== 'No especificada') {
-            document.getElementById('badgeComuna').textContent = `Destino: Comuna de ${u.comuna_tramite} (Pyme Ágil)`;
-          } else {
-            document.getElementById('badgeComuna').textContent = 'Destino: Pyme Ágil';
-          }
+          document.getElementById('badgeComuna').textContent = u.comuna_tramite && u.comuna_tramite !== 'No especificada' 
+            ? `Destino: Comuna de ${u.comuna_tramite} (Pyme Ágil)` 
+            : 'Destino: Pyme Ágil';
         } 
-        // =================================================================
-        // CASO 2: TIPO TRAMITE 2 (O MUNICIPAL) -> BUSCAR EN LA COLECCIÓN DE COMUNAS
-        // =================================================================
         else {
           if (u.comuna_tramite && u.comuna_tramite !== 'No especificada') {
             const nombreComuna = u.comuna_tramite;
             document.getElementById('badgeComuna').textContent = `Destino: Comuna de ${nombreComuna}`;
 
-            // Consultamos al endpoint de tu enrutador
-            const resComunas = await fetch('/api/comunas'); 
+            // 2. CONSULTAR COMUNAS (Ruta actualizada)
+            const resComunas = await fetch(`${API_BASE}/api/comunas`); 
             if (resComunas.ok) {
               const resultadoComunas = await resComunas.json();
-              
-              // Extraemos correctamente el array desde la propiedad .comunas que envía tu backend
               const listaComunas = resultadoComunas.comunas || [];
               
               const limpiarTexto = (texto) => 
@@ -484,7 +472,6 @@
               const comunaData = listaComunas.find(c => limpiarTexto(c.nombre) === limpiarTexto(nombreComuna));
 
               if (comunaData) {
-                // Obtenemos los campos dinámicos directamente del documento de la Comuna
                 const tipoTramite = comunaData.tipo_tramite_patente ? comunaData.tipo_tramite_patente.toLowerCase().trim() : "online";
                 const linkOficial = comunaData.link_rentas_patentes || "https://www.chileatiende.gob.cl/fichas/3342-patente-comercial-municipal";
 
@@ -492,45 +479,30 @@
 
                 if (tipoTramite === "presencial") {
                   btnTramite.innerHTML = `Ver Información de Rentas en ${comunaData.nombre} ↗`;
-                  txtInstruccion.innerHTML = `
-                    🏛️ <strong>Trámite Presencial:</strong> La Municipalidad de <strong>${comunaData.nombre}</strong> requiere que este trámite se realice de forma física.<br>
-                    Prepara tus antecedentes y dirígete al Departamento de Rentas municipal. Puedes pulsar abajo para revisar el link oficial con horarios y formularios.
-                  `;
+                  txtInstruccion.innerHTML = `🏛️ <strong>Trámite Presencial:</strong> La Municipalidad de <strong>${comunaData.nombre}</strong> requiere que este trámite se realice de forma física.`;
                 } else if (tipoTramite === "semipresencial") {
                   btnTramite.innerHTML = `Revisar Requisitos y Formularios (${comunaData.nombre}) ↗`;
-                  txtInstruccion.innerHTML = `
-                    📩 <strong>Trámite Semipresencial:</strong> En la comuna de <strong>${comunaData.nombre}</strong> el proceso combina pasos digitales y físicos.<br>
-                    Presiona abajo para ver el portal informativo oficial de la municipalidad y descargar las solicitudes necesarias.
-                  `;
+                  txtInstruccion.innerHTML = `📩 <strong>Trámite Semipresencial:</strong> En la comuna de <strong>${comunaData.nombre}</strong> el proceso combina pasos digitales y físicos.`;
                 } else {
-                  // Caso 'online'
                   btnTramite.innerHTML = `Ir al Portal de Patentes de ${comunaData.nombre} ↗`;
-                  txtInstruccion.innerHTML = `
-                    💻 <strong>Proceso Online Municipal:</strong> Puedes solicitar tu patente de forma 100% digital.<br>
-                    Presiona el botón inferior para ingresar directamente al portal específico de rentas de la <strong>Municipalidad de ${comunaData.nombre}</strong>.
-                  `;
+                  txtInstruccion.innerHTML = `💻 <strong>Proceso Online Municipal:</strong> Puedes solicitar tu patente de forma 100% digital en la <strong>Municipalidad de ${comunaData.nombre}</strong>.`;
                 }
               } else {
-                // Fallback si la comuna del usuario no coincide con ninguna en la base de datos
                 btnTramite.href = "https://www.chileatiende.gob.cl/fichas/3342-patente-comercial-municipal";
                 btnTramite.innerHTML = `Iniciar Trámite Online (${nombreComuna}) ↗`;
               }
             }
           } else {
-            // Si el usuario no tiene comuna asignada en su perfil
             document.getElementById('badgeComuna').textContent = 'Comuna pendiente de asignación';
             btnTramite.href = "https://www.chileatiende.gob.cl/fichas/3342-patente-comercial-municipal";
           }
         }
-
       } else {
         document.getElementById('badgeComuna').textContent = 'Simulación de Patente Municipal';
         document.getElementById('navbarUser').textContent = 'Invitado';
       }
     } catch (error) {
-      console.error('Error al mapear datos para el canal de la patente:', error);
-      document.getElementById('badgeComuna').textContent = 'Patente Municipal';
-      document.getElementById('navbarUser').textContent = 'Error de Sesión';
+      console.error('Error:', error);
     }
   });
 
@@ -538,5 +510,6 @@
     window.location.href = 'index.html';
   }
 </script>
+<!-- ... -->
 </body>
 </html>

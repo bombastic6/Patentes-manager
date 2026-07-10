@@ -444,41 +444,43 @@
     </div>
   </main>
 
+<!-- ... (Mantén todo el código HTML hasta el <script>) ... -->
+
 <script>
+  // URL DE PRODUCCIÓN
+  const API_BASE = "https://tupatente-backend.onrender.com";
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const resPerfil = await fetch('/api/users/perfil-actual');
+      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL (Ruta actualizada)
+      const resPerfil = await fetch(`${API_BASE}/api/users/perfil-actual`);
       const dataPerfil = await resPerfil.json();
 
       if (dataPerfil.success && dataPerfil.usuario) {
         const usuario = dataPerfil.usuario;
         const codigoGiro = usuario.giro_empresa_codigo;
         
-        // --- NUEVA LÓGICA DE ASIGNACIÓN DINÁMICA DE BOTÓN SEGÚN TIPO TRAMITE ---
         const btnAccionPrincipal = document.getElementById('btnAccionPrincipal');
         const txtInstruccionAccion = document.getElementById('txtInstruccionAccion');
         
-        // Evaluamos si el tipo_tramite_comuna guardado en su perfil de Atlas corresponde a 1 (Pyme Ágil)
         if (usuario.tipo_tramite_comuna === 1 || usuario.tipo_tramite_comuna === '1') {
-          // Cambiar href al registro simplificado de punta a punta directo
           btnAccionPrincipal.href = "https://www.registrodeempresasysociedades.cl/";
           btnAccionPrincipal.textContent = "Ir a Registro de Empresas y Sociedades";
-          btnAccionPrincipal.classList.add('btn-registro-directo'); // Agrega estilo azul para distinguir canal directo
+          btnAccionPrincipal.classList.add('btn-registro-directo');
           
           txtInstruccionAccion.innerHTML = `
             🚀 <strong>¡Canal Pyme Ágil Activado!</strong> Tu comuna permite la integración completa. <br>
             El siguiente botón te enviará directamente al **Portal Oficial del Ministerio de Economía** para que crees tu empresa sin intermediarios.
           `;
         } else {
-          // Si es 2 (Online / Oficina Virtual) o no está definido, se queda con la configuración por defecto (ChileAtiende)
           btnAccionPrincipal.href = "https://www.chileatiende.gob.cl/fichas/21409-tu-empresa-en-un-dia";
           btnAccionPrincipal.textContent = "Ir a la Guía de ChileAtiende";
           btnAccionPrincipal.classList.remove('btn-registro-directo');
         }
-        // ----------------------------------------------------------------------
 
         if (codigoGiro && Number(codigoGiro) !== 0) {
-          const resGiros = await fetch(`/api/giros?search=ALL_DATA`);
+          // 2. CONSULTAR CATÁLOGO DE GIROS (Ruta actualizada)
+          const resGiros = await fetch(`${API_BASE}/api/giros?search=ALL_DATA`);
           
           if (resGiros.ok) {
             const listaGiros = await resGiros.json();
@@ -498,24 +500,14 @@
               document.getElementById('sugerenciaObjetoSocial').innerHTML = `
                 Aquí debes escribir detalladamente qué actividades y servicios va a ofrecer tu negocio. Como estás en el sector de <strong>"${rubroLimpio}"</strong>, la página web de "Tu Empresa en un Día" te mostrará una lista de textos ya listos sobre este tema. Solo debes seleccionar los que coincidan con tu idea para que se agreguen automáticamente sin que tengas que redactar párrafos complejos.
               `;
-            } else {
-              document.getElementById('tituloPortada').textContent = `Crear tu Empresa`;
-              document.getElementById('badgeRubro').textContent = `Actividad Económica: Código ${codigoGiro}`;
             }
-          } else {
-            console.error(`Error al consultar catálogo de giros. Status: ${resGiros.status}`);
-            document.getElementById('badgeRubro').textContent = `Código de Actividad: ${codigoGiro}`;
           }
-        } else {
-          document.getElementById('tituloPortada').textContent = `Crear tu Empresa`;
-          document.getElementById('badgeRubro').textContent = `Sin actividad comercial definida`;
         }
       } else {
         window.location.href = 'index.html';
       }
     } catch (error) {
       console.error('Error al inicializar la portada dinámica:', error);
-      document.getElementById('badgeRubro').textContent = 'Error al conectar con el servidor';
     }
   });
 
@@ -523,5 +515,6 @@
     window.location.href = 'index.html';
   }
 </script>
+<!-- ... -->
 </body>
 </html>

@@ -27,7 +27,7 @@
       min-height: 100vh;
     }
 
-    /* --- NAVBAR REPLICADO Y ADAPTADO DE DASHBOARD --- */
+    /* --- NAVBAR --- */
     .navbar {
       background-color: #ffffff;
       box-shadow: 0 2px 4px rgba(0,0,0,0.08);
@@ -39,212 +39,36 @@
       top: 0;
       z-index: 100;
     }
-    .navbar-brand {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: var(--primary);
-      text-decoration: none;
-    }
-    .navbar-menu {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .nav-link-ayuda {
-      color: #4b5563;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: color 0.2s;
-    }
-    .nav-link-ayuda:hover {
-      color: var(--primary);
-    }
-    .btn-logout {
-      background-color: var(--danger);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.9rem;
-      transition: background-color 0.2s;
-    }
-    .btn-logout:hover {
-      background-color: #dc2626;
-    }
+    .navbar-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+    .navbar-menu { display: flex; align-items: center; gap: 20px; }
+    .nav-link-ayuda { color: #4b5563; font-weight: 600; text-decoration: none; font-size: 0.95rem; transition: color 0.2s; }
+    .nav-link-ayuda:hover { color: var(--primary); }
+    .btn-logout { background-color: var(--danger); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: background-color 0.2s; }
+    .btn-logout:hover { background-color: #dc2626; }
 
-    /* --- CONTENEDOR PRINCIPAL Y DISEÑO DEL PANEL --- */
-    .main-content {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px 20px;
-    }
+    /* --- CONTENEDOR --- */
+    .main-content { flex: 1; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; }
+    .container { background: var(--card-bg); padding: 35px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 1000px; }
 
-    .container {
-      background: var(--card-bg);
-      padding: 35px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 100%;
-      max-width: 1000px; 
-    }
-
-    .welcome-header {
-      margin-bottom: 30px;
-    }
-    .welcome-header h1 {
-      margin: 0 0 8px 0;
-      font-size: 1.8rem;
-      color: #111;
-    }
-
-    .card {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-top: 5px solid var(--border);
-      border-radius: 8px;
-      padding: 25px;
-      margin-top: 20px;
-    }
-    .card.status-active {
-      border-top-color: var(--primary);
-    }
-
-    .card-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      margin-top: 0;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: white;
-    }
-    .badge.bg-none { background-color: var(--secondary-btn, #64748b); }
+    .card { background: #f8fafc; border: 1px solid #e2e8f0; border-top: 5px solid var(--border); border-radius: 8px; padding: 25px; margin-top: 20px; }
+    .card.status-active { border-top-color: var(--primary); }
+    .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+    .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; color: white; }
     .badge.bg-active { background-color: var(--primary); }
-
-    .no-colab-message {
-      text-align: center;
-      padding: 20px 0;
-      color: var(--text-muted);
-    }
-
-    .grid-colab-info {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .info-box {
-      background-color: #ffffff;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-    }
-
-    .info-box label {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .info-box span {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    /* --- STEPPER (SEGUIMIENTO DE PROCESO) --- */
-    .stepper {
-      display: flex;
-      justify-content: space-between;
-      position: relative;
-      margin: 40px 0 20px 0;
-    }
-
-    .stepper::before {
-      content: '';
-      position: absolute;
-      top: 20px;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background-color: #e2e8f0;
-      z-index: 1;
-    }
-
-    .step-progress-bar {
-      position: absolute;
-      top: 20px;
-      left: 0;
-      width: 0%;
-      height: 4px;
-      background-color: var(--success);
-      z-index: 2;
-      transition: width 0.4s ease;
-    }
-
-    .step {
-      position: relative;
-      z-index: 3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-    }
-
-    .step-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background-color: #ffffff;
-      border: 4px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: var(--text-muted);
-      transition: all 0.3s ease;
-    }
-
-    .step-label {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: var(--text-muted);
-      text-align: center;
-    }
-
-    .step.completed .step-icon {
-      background-color: var(--success);
-      border-color: var(--success);
-      color: white;
-    }
-    .step.completed .step-label { color: var(--success); }
-
-    .step.current .step-icon {
-      border-color: var(--primary);
-      color: var(--primary);
-      box-shadow: 0 0 0 4px #dbeafe;
-    }
-    .step.current .step-label { color: var(--primary); }
-
+    .no-colab-message { text-align: center; padding: 20px 0; color: var(--text-muted); }
+    .grid-colab-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .info-box { background-color: #ffffff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .info-box label { display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; margin-bottom: 5px; }
+    .info-box span { font-size: 0.95rem; font-weight: 600; color: #1e293b; }
+    
+    /* --- STEPPER --- */
+    .stepper { display: flex; justify-content: space-between; position: relative; margin: 40px 0 20px 0; }
+    .stepper::before { content: ''; position: absolute; top: 20px; left: 0; right: 0; height: 4px; background-color: #e2e8f0; z-index: 1; }
+    .step-progress-bar { position: absolute; top: 20px; left: 0; width: 0%; height: 4px; background-color: var(--success); z-index: 2; transition: width 0.4s ease; }
+    .step { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; flex: 1; }
+    .step-icon { width: 40px; height: 40px; border-radius: 50%; background-color: #ffffff; border: 4px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--text-muted); }
+    .step.completed .step-icon { background-color: var(--success); border-color: var(--success); color: white; }
+    .step.current .step-icon { border-color: var(--primary); color: var(--primary); }
     .hidden { display: none; }
   </style>
 </head>
@@ -262,7 +86,6 @@
     <div class="container">
       <div class="welcome-header">
         <h1 id="welcomeMessage">Cargando panel de cliente...</h1>
-        <p id="userEmail" style="color: var(--text-muted); margin: 0; font-size: 0.9rem;"></p>
       </div>
 
       <div class="card" id="colabCard">
@@ -272,8 +95,7 @@
         </div>
 
         <div id="noColabSection" class="no-colab-message hidden">
-          <p>Aún no posees un colaborador asignado en tu cuenta.</p>
-          <p style="font-size: 0.9rem;">Para contar con un colaborador, se requiere que la firma de apoderado sea confirmada y poseas un documento cargado en el sistema.</p>
+          <p>Aún no posees un colaborador asignado.</p>
         </div>
 
         <div id="activeColabSection" class="hidden">
@@ -293,92 +115,62 @@
           </div>
 
           <h3 style="margin-top: 30px; font-size: 1.1rem;">Estado del Proceso</h3>
-          
           <div class="stepper">
             <div class="step-progress-bar" id="stepProgress"></div>
-            
-            <div class="step" id="step1">
-              <div class="step-icon">1</div>
-              <div class="step-label">Validación de<br>Antecedentes</div>
-            </div>
-            <div class="step" id="step2">
-              <div class="step-icon">2</div>
-              <div class="step-label">Firma de<br>Apoderado</div>
-            </div>
-            <div class="step" id="step3">
-              <div class="step-icon">3</div>
-              <div class="step-label">Tramitación<br>Municipal</div>
-            </div>
-            <div class="step" id="step4">
-              <div class="step-icon">4</div>
-              <div class="step-label">Patente<br>Aprobada</div>
-            </div>
+            <div class="step" id="step1"><div class="step-icon">1</div></div>
+            <div class="step" id="step2"><div class="step-icon">2</div></div>
+            <div class="step" id="step3"><div class="step-icon">3</div></div>
+            <div class="step" id="step4"><div class="step-icon">4</div></div>
           </div>
         </div>
-
       </div>
     </div>
   </main>
 
 <script>
+  const API_BASE = "https://tupatente-backend.onrender.com";
+
   document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
 
     try {
-      const response = await fetch('/api/users/perfil-actual');
+      const response = await fetch(`${API_BASE}/api/users/perfil-actual`);
       const data = await response.json();
 
       if (data.success && data.usuario.rol === 'CLIENTE') {
         const cliente = data.usuario;
-        console.log("CLIENTE CARGADO:", cliente);
-
-        // --- LÓGICA SIMPLIFICADA ---
-        // Solo verificamos si el colaborador está activo y asignado
+        
         if (cliente.colab_activo == true && cliente.colab_assigned) {
-          
           document.getElementById('colabCard').classList.add('status-active');
           document.getElementById('colabBadge').innerText = "Asignado";
           document.getElementById('colabBadge').className = "badge bg-active";
           document.getElementById('activeColabSection').classList.remove('hidden');
-          
-          // Mostramos el ID del documento si existe, si no, un guion
           document.getElementById('colabDocId').innerText = cliente.documento_apoderado || "Sin documento";
 
-          // Obtenemos el ID del colaborador (manejando formato objeto o string)
           const idColab = (typeof cliente.colab_assigned === 'object' && cliente.colab_assigned !== null) 
                           ? (cliente.colab_assigned.$oid || cliente.colab_assigned._id) 
                           : cliente.colab_assigned;
 
-          try {
-            const resColab = await fetch(`/api/users/usuario/${idColab}`);
-            const dataColab = await resColab.json();
-            
-            if (dataColab.success) {
-              document.getElementById('colabName').innerText = dataColab.usuario.nombre;
-              document.getElementById('colabEmail').innerText = dataColab.usuario.correo;
-            }
-          } catch (e) {
-            console.error("Error al cargar datos del colaborador:", e);
-            document.getElementById('colabName').innerText = "Error al cargar datos";
+          const resColab = await fetch(`${API_BASE}/api/users/usuario/${idColab}`);
+          const dataColab = await resColab.json();
+          
+          if (dataColab.success) {
+            document.getElementById('colabName').innerText = dataColab.usuario.nombre;
+            document.getElementById('colabEmail').innerText = dataColab.usuario.correo;
           }
 
-          // Seguimiento de proceso (mantenemos la lógica de etapas)
           let etapa = 1;
           if (cliente.patente_primaria === "APROBADO") etapa = 4;
           else if (cliente.patente_primaria === "PENDIENTE") etapa = 2;
           actualizarSeguimiento(etapa);
 
         } else {
-          // Si colab_activo es falso o no hay asignación, mostramos el mensaje por defecto
           document.getElementById('noColabSection').classList.remove('hidden');
         }
-
       } else {
         window.location.href = 'index.html';
       }
-    } catch (err) {
-      console.error("Error general:", err);
-    }
+    } catch (err) { console.error("Error general:", err); }
   });
 
   function actualizarSeguimiento(etapa) {
@@ -392,9 +184,7 @@
     }
   }
 
-  function ejecutarLogout() {
-    window.location.href = 'index.html';
-  }
+  function ejecutarLogout() { window.location.href = 'index.html'; }
 </script>
 </body>
 </html>

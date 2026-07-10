@@ -27,16 +27,34 @@
       line-height: 1.6;
     }
 
-    /* --- NAV DE PASOS DENTRO DEL HEADER --- */
-    .navbar-top {
-      display: none;
+    /* --- NAVBAR UNIFICADO --- */
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 120;
+    }
+
+    .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+      white-space: nowrap;
+      flex: 1 1 0%;
     }
 
     .navbar-steps {
       display: flex;
       justify-content: center;
       align-items: center;
-      flex-grow: 1;
       gap: 8px;
       padding: 0;
       border: none;
@@ -51,6 +69,44 @@
       max-width: none;
     }
 
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      flex-wrap: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .nav-link-ayuda {
+      color: #4b5563;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-link-ayuda:hover {
+      color: var(--primary);
+    }
+
+    .btn-logout {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    /* --- PASOS DEL TUTORIAL --- */
     .step-link {
       display: flex;
       flex-direction: column;
@@ -98,67 +154,6 @@
       background-color: var(--success);
       color: white;
       box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
-    }
-
-    .step-link.active .step-label,
-    .step-link.completed .step-label {
-      color: inherit;
-    }
-
-    .navbar {
-      background-color: #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 28px;
-      position: sticky;
-      top: 0;
-      z-index: 110;
-    }
-
-    .navbar-brand {
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: var(--primary);
-      text-decoration: none;
-      white-space: nowrap;
-      flex: 1 1 0%;
-    }
-
-    .navbar-menu {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 18px;
-      flex-wrap: nowrap;
-      flex: 1 1 0%;
-    }
-
-    .nav-link-ayuda {
-      color: #4b5563;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: color 0.2s;
-    }
-    .nav-link-ayuda:hover {
-      color: var(--primary);
-    }
-    .btn-logout {
-      background-color: #ef4444;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.9rem;
-      transition: background-color 0.2s;
-    }
-    .btn-logout:hover {
-      background-color: #dc2626;
     }
 
     /* --- PORTADA --- */
@@ -249,166 +244,120 @@
 </head>
 <body>
 
-<nav class="navbar">
-  <a href="dashboard.html" class="navbar-brand">TuPatente</a>
-  <div class="navbar-steps">
-    <div class="steps-container">
-      <a href="tutorial_comuna.html" class="step-link active" data-step="1">
-        <div class="step-number">1</div>
-        <div class="step-label">Factibilidad</div>
-      </a>
-      <a href="tutorial_constitucion.html" class="step-link" data-step="2">
-        <div class="step-number">2</div>
-        <div class="step-label">Constitución</div>
-      </a>
-      <a href="tutorial_sii.html" class="step-link" data-step="3">
-        <div class="step-number">3</div>
-        <div class="step-label">SII</div>
-      </a>
-      <a href="solicitud_patente.html" class="step-link" data-step="4">
-        <div class="step-number">4</div>
-        <div class="step-label">Patente</div>
-      </a>
-    </div>
-  </div>
-  <div class="navbar-menu">
-    <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
-    <button class="btn-logout" id="btnLogoutTop" onclick="cerrarSesion()">Cerrar Sesión</button>
-  </div>
-</nav>
-
-<header class="hero-portada">
-  <h1>Paso 1: Análisis y Factibilidad Comunal</h1>
-  <p>Conoce las reglas del juego e integraciones digitales antes de iniciar tus trámites</p>
-  <div class="rubro-badge" id="badgeAnalisis">Analizando territorio...</div>
-</header>
-
-<main class="main-container">
-  <div class="content-card">
-    <h3>¿Por qué este es el primer paso indispensable?</h3>
-    <p class="intro-text">
-      Cada municipalidad en Chile opera de forma autónoma. Dependiendo de la comuna que seleccionaste para establecer tu empresa, tendrás acceso a vías rápidas de tramitación online o deberás prepararte para gestiones presenciales específicas.
-    </p>
-
-    <div class="diagnosis-container">
-      <div class="diagnosis-header">
-        Análisis de tu Territorio: <strong id="lblComunaUser">Detectando...</strong>
-      </div>
-      <div id="txtCompatibilidad" style="margin: 0; color: #475569; font-size: 0.95rem;">
-        Cargando datos de compatibilidad con sistemas gubernamentales...
-      </div>
-      <div id="badgePresencialidadContainer"></div>
-
-      <div id="panelSelectorFlujo" class="flow-selector-box" style="display: none;">
-        <div class="flow-title">Configuración del canal de tramitación</div>
-        <p style="font-size: 0.85rem; color: #4b5563; margin-top: 0; margin-bottom: 12px;">
-          Selecciona la modalidad de tramitación que prefieras para tu hoja de ruta:
-        </p>
-        <div id="contenedorOpcionesFlujo"></div>
+  <nav class="navbar">
+    <a href="dashboard.html" class="navbar-brand">TuPatente</a>
+    <div class="navbar-steps">
+      <div class="steps-container">
+        <a href="tutorial_comuna.html" class="step-link active" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-label">Factibilidad</div>
+        </a>
+        <a href="tutorial_constitucion.html" class="step-link" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-label">Constitución</div>
+        </a>
+        <a href="tutorial_sii.html" class="step-link" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-label">SII</div>
+        </a>
+        <a href="solicitud_patente.html" class="step-link" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-label">Patente</div>
+        </a>
       </div>
     </div>
-
-    <div class="concept-box">
-      <div class="concept-title">Sistema de Registro Simplificado (Tu Empresa en un Día)</div>
-      <p class="concept-desc">Este régimen simplificado permite constituir una persona jurídica de forma inmediata y centralizada. A diferencia del proceso tradicional, no requiere la redacción de una escritura pública por un abogado, la posterior publicación en el Diario Oficial, ni la inscripción en el Conservador de Bienes Raíces, reduciendo drásticamente los gastos notariales y los tiempos de tramitación de semanas a un solo día.</p>
+    <div class="navbar-menu">
+      <span id="navbarUser" style="color: var(--text-muted); font-weight: 600; font-size: 0.95rem;">Cargando...</span>
+      <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
+      <button class="btn-logout" id="btnLogoutTop" onclick="cerrarSesion()">Cerrar Sesión</button>
     </div>
+  </nav>
 
-    <div class="concept-box">
-      <div class="concept-title">Proceso Tradicional Local</div>
-      <p class="concept-desc">Utilizado cuando las estructuras societarias son complejas o cuando el municipio de destino exige carpetas físicas de antecedentes para validar la zonificación y los planos de la propiedad.</p>
-    </div>
+  <header class="hero-portada">
+    <h1>Paso 1: Análisis y Factibilidad Comunal</h1>
+    <p>Conoce las reglas del juego e integraciones digitales antes de iniciar tus trámites</p>
+    <div class="rubro-badge" id="badgeAnalisis">Analizando territorio...</div>
+  </header>
 
-    <div class="action-zone" id="zonaWebMunicipal">
-      <div class="action-instruction" id="txtInstructionMunicipal">
-        Te recomendamos revisar los planes reguladores o el portal de patentes del municipio antes de firmar arriendos.
+  <main class="main-container">
+    <div class="content-card">
+      <h3>¿Por qué este es el primer paso indispensable?</h3>
+      <p class="intro-text">
+        Cada municipalidad en Chile opera de forma autónoma. Dependiendo de la comuna que seleccionaste para establecer tu empresa, tendrás acceso a vías rápidas de tramitación online o deberás prepararte para gestiones presenciales específicas.
+      </p>
+
+      <div class="diagnosis-container">
+        <div class="diagnosis-header">
+          Análisis de tu Territorio: <strong id="lblComunaUser">Detectando...</strong>
+        </div>
+        <div id="txtCompatibilidad" style="margin: 0; color: #475569; font-size: 0.95rem;">
+          Cargando datos de compatibilidad con sistemas gubernamentales...
+        </div>
+        <div id="badgePresencialidadContainer"></div>
+
+        <div id="panelSelectorFlujo" class="flow-selector-box" style="display: none;">
+          <div class="flow-title">Configuración del canal de tramitación</div>
+          <p style="font-size: 0.85rem; color: #4b5563; margin-top: 0; margin-bottom: 12px;">
+            Selecciona la modalidad de tramitación que prefieras para tu hoja de ruta:
+          </p>
+          <div id="contenedorOpcionesFlujo"></div>
+        </div>
       </div>
-      <a href="#" target="_blank" class="btn-municipal" id="btnLinkMunicipal" style="display: none;">
-        Visitar Web Municipal
-      </a>
-    </div>
-  </div>
 
-  <div class="navigation-area">
-    <a href="dashboard.html" class="btn-back-dash">Volver al Dashboard</a>
-    <button class="btn-next" id="btnFinalizarPaso">Continuar</button>
-  </div>
-</main>
+      <div class="concept-box">
+        <div class="concept-title">Sistema de Registro Simplificado (Tu Empresa en un Día)</div>
+        <p class="concept-desc">Este régimen simplificado permite constituir una persona jurídica de forma inmediata y centralizada. A diferencia del proceso tradicional, no requiere la redacción de una escritura pública por un abogado, la posterior publicación en el Diario Oficial, ni la inscripción en el Conservador de Bienes Raíces, reduciendo drásticamente los gastos notariales y los tiempos de tramitación de semanas a un solo día.</p>
+      </div>
+
+      <div class="concept-box">
+        <div class="concept-title">Proceso Tradicional Local</div>
+        <p class="concept-desc">Utilizado cuando las estructuras societarias son complejas o cuando el municipio de destino exige carpetas físicas de antecedentes para validar la zonificación y los planos de la propiedad.</p>
+      </div>
+
+      <div class="action-zone" id="zonaWebMunicipal">
+        <div class="action-instruction" id="txtInstructionMunicipal">
+          Te recomendamos revisar los planes reguladores o el portal de patentes del municipio antes de firmar arriendos.
+        </div>
+        <a href="#" target="_blank" class="btn-municipal" id="btnLinkMunicipal" style="display: none;">
+          Visitar Web Municipal
+        </a>
+      </div>
+    </div>
+
+    <div class="navigation-area">
+      <a href="dashboard.html" class="btn-back-dash">Volver al Dashboard</a>
+      <button class="btn-next" id="btnFinalizarPaso">Continuar</button>
+    </div>
+  </main>
 
 <script>
+  const API_BASE = "https://tupatente-backend.onrender.com";
   let siguienteUrlCalculada = 'dashboard.html';
-  let cacheUsuarioActivo = null; // Guardará el objeto usuario completo para el envío posterior
+  let cacheUsuarioActivo = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
       const btnFinalizarPaso = document.getElementById('btnFinalizarPaso');
       const btnLogoutTop = document.getElementById('btnLogoutTop');
-      const stepItems = document.querySelectorAll('.mini-step[data-step]');
-
-      const URL_PASOS = {
-        1: 'tutorial_comuna.html',
-        2: 'formulario.html',
-        3: 'tutorial_constitucion.html',
-        4: 'tutorial_sii.html',
-        5: 'solicitud_patente.html'
-      };
 
       btnLogoutTop?.addEventListener('click', cerrarSesion);
 
-      function obtenerSiguientePaso(usuario) {
-        const paso1 = usuario.region_tramite && usuario.region_tramite !== 'No especificada';
-        const tieneConstitucionValida = usuario.constitucion_legal && usuario.constitucion_legal != "" && usuario.constitucion_legal != "4" && usuario.constitucion_legal != 4;
-        const pasoGiroListo = usuario.giro_empresa_codigo && usuario.giro_empresa_codigo !== "";
-        const paso2 = tieneConstitucionValida && pasoGiroListo;
-        const paso3 = usuario.situacion_sii == "2" || usuario.situacion_sii == "3";
-
-        if (!paso1) return URL_PASOS[2];
-        if (!paso2) return URL_PASOS[3];
-        if (!paso3) return URL_PASOS[4];
-        return URL_PASOS[5];
-      }
-
-      function actualizarNavegacionPorPasos(usuario) {
-        const paso1 = usuario.region_tramite && usuario.region_tramite !== 'No especificada';
-        const tieneConstitucionValida = usuario.constitucion_legal && usuario.constitucion_legal != "" && usuario.constitucion_legal != "4" && usuario.constitucion_legal != 4;
-        const pasoGiroListo = usuario.giro_empresa_codigo && usuario.giro_empresa_codigo !== "";
-        const paso2 = tieneConstitucionValida && pasoGiroListo;
-        const paso3 = usuario.situacion_sii == "2" || usuario.situacion_sii == "3";
-        const paso4 = paso1 && paso2 && paso3;
-        const estadoPasos = {1: paso1, 2: paso2, 3: paso3, 4: paso4, 5: paso4};
-
-        stepItems.forEach(step => {
-          const stepId = Number(step.dataset.step);
-          step.classList.toggle('completed', !!estadoPasos[stepId]);
-          step.classList.toggle('active', stepId === 1);
-          if (stepId === 1) {
-            step.removeAttribute('href');
-          } else {
-            step.href = URL_PASOS[stepId];
-          }
-        });
-
-        siguienteUrlCalculada = obtenerSiguientePaso(usuario);
-      }
-
-      const responseUser = await fetch('/api/users/perfil-actual');
+      const responseUser = await fetch(`${API_BASE}/api/users/perfil-actual`);
       const resultadoUser = await responseUser.json();
 
       if (responseUser.ok && resultadoUser.success && resultadoUser.usuario) {
         cacheUsuarioActivo = resultadoUser.usuario;
         const usuario = resultadoUser.usuario;
-        const nombreUsuario = usuario.nombre || usuario.name || usuario.email || 'Usuario';
         
         if(document.getElementById('navbarUser')) {
-           document.getElementById('navbarUser').textContent = `Hola, ${nombreUsuario}`;
+           document.getElementById('navbarUser').textContent = `Hola, ${usuario.nombre || 'Usuario'}`;
         }
 
         const comunaNombre = usuario.comuna_tramite || "No especificada";
         document.getElementById('lblComunaUser').textContent = comunaNombre;
         document.getElementById('badgeAnalisis').textContent = `Comuna activa: ${comunaNombre}`;
-        actualizarNavegacionPorPasos(usuario);
 
-        // 2. Consultar directamente a la API por los datos de la Comuna en BD
-        const responseComuna = await fetch(`/api/comunas/buscar/${encodeURIComponent(comunaNombre)}`);
+        const responseComuna = await fetch(`${API_BASE}/api/comunas/buscar/${encodeURIComponent(comunaNombre)}`);
         const resultadoComuna = await responseComuna.json();
 
         const txtComp = document.getElementById('txtCompatibilidad');
@@ -420,7 +369,6 @@
 
         if (responseComuna.ok && resultadoComuna.success && resultadoComuna.comuna) {
           const comunaBD = resultadoComuna.comuna;
-
           let canalTexto = 'Presencial';
           let claseBadge = 'badge-fisico';
           if (comunaBD.tipo_tramite_patente === 'online') {
@@ -432,177 +380,57 @@
           }
 
           badgeContainer.innerHTML = `<span class="presencialidad-badge ${claseBadge}">Trámite Municipal para Patentes: ${canalTexto}</span>`;
-
-          // ELEMENTOS COMPATIBLES DESDE TU BASE DE DATOS REAL (oficina_virtual_permitida y compatible_pyme_agil)
+          
           const permitePymeAgil = comunaBD.compatible_pyme_agil === true;
           const permiteOnline = comunaBD.oficina_virtual_permitida === true;
 
+          panelSelectorFlujo.style.display = 'block';
           if (permitePymeAgil && permiteOnline) {
-            // CASO HÍBRIDO: La comuna permite AMBAS opciones. El usuario elije explícitamente en pantalla.
-            txtComp.innerHTML = `La comuna de <strong>${comunaNombre}</strong> dispone de múltiples modalidades habilitadas. Cuenta con compatibilidad completa para <strong>Pyme Ágil</strong> e incorpora un portal de <strong>Oficina Virtual</strong> municipal de forma paralela.`;
-            panelSelectorFlujo.style.display = 'block';
-
-            contenedorOpcionesFlujo.innerHTML = `
-              <label class="flow-option">
-                <input type="radio" name="flujoOp" value="pyme_agil" checked>
-                <div>
-                  <div class="flow-label-text">Ecosistema Centralizado: Pyme Ágil</div>
-                  <div class="flow-desc-text">Vincular e integrar toda la hoja de ruta desde la plataforma estatal centralizada (Constitución, SII y Patente integradas).</div>
-                </div>
-              </label>
-              <label class="flow-option">
-                <input type="radio" name="flujoOp" value="online">
-                <div>
-                  <div class="flow-label-text">Canal Municipal Remoto: Oficina Virtual</div>
-                  <div class="flow-desc-text">Realizar hitos independientes estándar y completar la solicitud directamente en la plataforma web local de la municipalidad.</div>
-                </div>
-              </label>
+             contenedorOpcionesFlujo.innerHTML = `
+              <label class="flow-option"><input type="radio" name="flujoOp" value="pyme_agil" checked><div><div class="flow-label-text">Ecosistema Centralizado: Pyme Ágil</div><div class="flow-desc-text">Vincular e integrar toda la hoja de ruta desde la plataforma estatal centralizada.</div></div></label>
+              <label class="flow-option"><input type="radio" name="flujoOp" value="online"><div><div class="flow-label-text">Canal Municipal Remoto: Oficina Virtual</div><div class="flow-desc-text">Realizar hitos independientes y completar la solicitud en la plataforma web local.</div></div></label>
             `;
           } else if (permitePymeAgil) {
-            // Caso Solo Pyme Ágil
-            txtComp.innerHTML = `La comuna de <strong>${comunaNombre}</strong> cuenta con compatibilidad técnica activa para el ecosistema unificado de <strong>Pyme Ágil</strong>.`;
-            panelSelectorFlujo.style.display = 'block';
-            contenedorOpcionesFlujo.innerHTML = `
-              <label class="flow-option">
-                <input type="radio" name="flujoOp" value="pyme_agil" checked>
-                <div>
-                  <div class="flow-label-text">Todo el trámite con Tu Empresa en un Día / Pyme Ágil</div>
-                  <div class="flow-desc-text">Flujo digital unificado de punta a punta (Constitución, SII y Patente 100% Online).</div>
-                </div>
-              </label>
-            `;
+             contenedorOpcionesFlujo.innerHTML = `<label class="flow-option"><input type="radio" name="flujoOp" value="pyme_agil" checked><div><div class="flow-label-text">Pyme Ágil</div><div class="flow-desc-text">Flujo digital unificado de punta a punta.</div></div></label>`;
           } else if (permiteOnline) {
-            // Caso Solo Oficina Virtual / Online Tradicional
-            txtComp.innerHTML = `La comuna de <strong>${comunaNombre}</strong> gestiona sus solicitudes mediante portales de <strong>Oficina Virtual Online</strong> independientes.`;
-            panelSelectorFlujo.style.display = 'block';
-            contenedorOpcionesFlujo.innerHTML = `
-              <label class="flow-option">
-                <input type="radio" name="flujoOp" value="online" checked>
-                <div>
-                  <div class="flow-label-text">Vía Tradicional 100% Online</div>
-                  <div class="flow-desc-text">Uso independiente del portal del SII y posterior tramitación digital en la plataforma web municipal.</div>
-                </div>
-              </label>
-            `;
+             contenedorOpcionesFlujo.innerHTML = `<label class="flow-option"><input type="radio" name="flujoOp" value="online" checked><div><div class="flow-label-text">Oficina Virtual</div><div class="flow-desc-text">Uso independiente del portal del SII y tramitación municipal online.</div></div></label>`;
           } else {
-            // Caso 100% Presencial tradicional
-            txtComp.innerHTML = `La comuna de <strong>${comunaNombre}</strong> no dispone de interoperabilidad remota directa para patentes. Las gestiones deben canalizarse de forma mixta o presencial.`;
-            panelSelectorFlujo.style.display = 'block';
-            contenedorOpcionesFlujo.innerHTML = `
-              <label class="flow-option">
-                <input type="radio" name="flujoOp" value="presencial" checked>
-                <div>
-                  <div class="flow-label-text">Vía Mixta (Online / Presencial Tradicional)</div>
-                  <div class="flow-desc-text">Hitos societarios remotos combinados con carpetas físicas entregadas directamente en las dependencias municipales.</div>
-                </div>
-              </label>
-            `;
+             contenedorOpcionesFlujo.innerHTML = `<label class="flow-option"><input type="radio" name="flujoOp" value="presencial" checked><div><div class="flow-label-text">Vía Mixta (Online / Presencial)</div><div class="flow-desc-text">Hitos societarios remotos combinados con entrega física de carpetas.</div></div></label>`;
           }
 
-          // Cargar del localStorage si había una selección previa local
-          const flujoPrevio = localStorage.getItem('flujoTramitacionSeleccionado');
-          if (flujoPrevio) {
-            const radio = document.querySelector(`input[name="flujoOp"][value="${flujoPrevio}"]`);
-            if (radio) radio.checked = true;
-          }
-
-          // Control de visibilidad de enlaces web municipales
           if (comunaBD.tipo_tramite_patente === 'presencial' && !comunaBD.link_rentas_patentes) {
             zonaWebMunicipal.style.display = 'none';
           } else {
             zonaWebMunicipal.style.display = 'block';
-            btnMun.href = comunaBD.link_rentas_patentes || `https://www.google.com/search?q=municipalidad+de+${encodeURIComponent(comunaNombre)}+patentes`;
+            btnMun.href = comunaBD.link_rentas_patentes || "#";
             btnMun.textContent = `Visitar Portal de Rentas de ${comunaNombre}`;
             btnMun.style.display = 'inline-block';
-            document.getElementById('txtInstructionMunicipal').innerHTML = `Puedes inspeccionar el portal específico provisto por la <strong>Municipalidad de ${comunaNombre}</strong> para adelantarte a los requisitos locales:`;
           }
-
-        } else {
-          fallbackState();
         }
-      } else {
-        fallbackState();
       }
-    } catch (error) {
-      console.error('Error en diagnóstico comunal:', error);
-      fallbackState();
-    }
+    } catch (error) { console.error('Error:', error); }
 
-    // --- ACCIÓN ASÍNCRONA: ACTUALIZA LA BD AL PULSAR EL BOTÓN CONTINUAR ---
     document.getElementById('btnFinalizarPaso').addEventListener('click', async (e) => {
-      e.preventDefault(); // Pausamos la navegación inmediata
-
+      e.preventDefault();
       const seleccionado = document.querySelector('input[name="flujoOp"]:checked');
       const stringFlujo = seleccionado ? seleccionado.value : 'presencial';
+      let codigoNumericoTramite = (stringFlujo === 'pyme_agil') ? 1 : (stringFlujo === 'online' ? 2 : 0);
 
-      // 1. Persistencia de respaldo rápido en el navegador
-      localStorage.setItem('flujoTramitacionSeleccionado', stringFlujo);
-
-      // 2. Mapeo exacto de la opción del usuario a su código numérico correspondiente (M MCM)
-      let codigoNumericoTramite = 0;
-      if (stringFlujo === 'pyme_agil') {
-        codigoNumericoTramite = 1;
-      } else if (stringFlujo === 'online') {
-        codigoNumericoTramite = 2;
+      if (cacheUsuarioActivo) {
+        const payload = { ...cacheUsuarioActivo, tipo_tramite_comuna: codigoNumericoTramite };
+        try {
+          await fetch(`${API_BASE}/api/users/crear_invitado`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        } catch (err) { console.error(err); }
       }
-
-      if (!cacheUsuarioActivo || !cacheUsuarioActivo.correo) {
-        console.warn("Falta sesión en caché, redirigiendo por flujo local...");
-        window.location.href = siguienteUrlCalculada;
-        return;
-      }
-
-      // Reconstruimos el payload completo reutilizando tu ruta existente del backend
-      const payloadActualizacion = {
-        nombre: cacheUsuarioActivo.nombre,
-        correo: cacheUsuarioActivo.correo,
-        region_tramite: cacheUsuarioActivo.region_tramite,
-        comuna_tramite: cacheUsuarioActivo.comuna_tramite,
-        tipo_tramite_comuna: codigoNumericoTramite, // <--- Enviando 1 o 2 guardado según la elección explícita
-        constitucion_legal: cacheUsuarioActivo.constitucion_legal,
-        giro_empresa_codigo: cacheUsuarioActivo.giro_empresa_codigo,
-        situacion_sii: cacheUsuarioActivo.situacion_sii,
-        patente_primaria: cacheUsuarioActivo.patente_primaria,
-        patente_secundaria: cacheUsuarioActivo.patente_secundaria
-      };
-
-      console.log("Enviando actualización de canal a MongoDB Atlas:", payloadActualizacion);
-
-      try {
-        const resUpdate = await fetch('http://localhost:3000/api/users/crear_invitado', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payloadActualizacion)
-        });
-
-        if (resUpdate.ok) {
-          console.log("¡Canal de tramitación actualizado exitosamente en Atlas!");
-        }
-      } catch (err) {
-        console.error("Error crítico de red al guardar preferencia de canal:", err);
-      } finally {
-        // Redirigir al siguiente paso de la ruta
-        window.location.href = siguienteUrlCalculada;
-      }
+      window.location.href = siguienteUrlCalculada;
     });
   });
 
-  function fallbackState() {
-    document.getElementById('lblComunaUser').textContent = "General";
-    document.getElementById('badgeAnalisis').textContent = "Paso de Factibilidad Territorial";
-    document.getElementById('txtCompatibilidad').textContent = "No logramos sincronizar tu comuna automatizadamente. Te guiaremos bajo el formato estándar multirregional.";
-    document.getElementById('badgePresencialidadContainer').innerHTML = `<span class="presencialidad-badge badge-semi">Trámite Municipal: Mixt</span>`;
-    
-    if(document.getElementById('navbarUser')) {
-        document.getElementById('navbarUser').textContent = 'Invitado';
-    }
-    siguienteUrlCalculada = 'formulario.html';
-    localStorage.setItem('flujoTramitacionSeleccionado', 'presencial');
-  }
-
-  function cerrarSesion() {
-    window.location.href = 'index.html';
-  }
+  function cerrarSesion() { window.location.href = 'index.html'; }
 </script>
+</body>
+</html>

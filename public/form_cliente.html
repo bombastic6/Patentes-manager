@@ -292,14 +292,15 @@
     </div>
   </main>
 
-  <script>
+<script>
     document.addEventListener('DOMContentLoaded', async () => {
       // Evento de cierre de sesión heredado del dashboard
       document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
 
       // 1. AUTORELLENAR DATOS PREVIOS CON EL PERFIL ACTUAL EN SESIÓN
       try {
-        const response = await fetch('/api/users/perfil-actual');
+        // CORRECCIÓN: URL limpia y única
+        const response = await fetch('https://tupatente-backend.onrender.com/api/users/perfil-actual');
         const resultado = await response.json();
 
         if (response.ok && resultado.success && resultado.usuario) {
@@ -327,8 +328,7 @@
         e.preventDefault();
 
         const formData = new FormData();
-
-        // Datos del Formulario
+        // ... (Tu código de append permanece igual) ...
         formData.append('nombre', document.getElementById('nombre').value.trim());
         formData.append('correo', document.getElementById('correo').value.trim());
         formData.append('rut', document.getElementById('rut').value.trim());
@@ -337,25 +337,19 @@
         formData.append('profesion', document.getElementById('profesion').value.trim());
         formData.append('residencia', document.getElementById('residencia').value.trim());
         formData.append('rol', 'CLIENTE');
-
         formData.append('lugar_direccion', document.getElementById('lugar_direccion').value.trim());
         formData.append('lugar_region', document.getElementById('lugar_region').value.trim());
         formData.append('lugar_comuna', document.getElementById('lugar_comuna').value.trim());
         formData.append('lugar_apta_Act', document.getElementById('lugar_apta_act').value);
 
-        // Archivos requeridos
         const filePropietario = document.getElementById('file_propietario').files[0];
-        if (filePropietario) {
-          formData.append('file_propietario', filePropietario); 
-        }
-
+        if (filePropietario) formData.append('file_propietario', filePropietario); 
         const fileAntecedentes = document.getElementById('file_antecedentes').files[0];
-        if (fileAntecedentes) {
-          formData.append('file_antecedentes', fileAntecedentes);
-        }
+        if (fileAntecedentes) formData.append('file_antecedentes', fileAntecedentes);
 
         try {
-          const saveResponse = await fetch('/api/users/actualizar-a-cliente', {
+          // CORRECCIÓN: Agregar la URL base aquí también
+          const saveResponse = await fetch('https://tupatente-backend.onrender.com/api/users/actualizar-a-cliente', {
             method: 'PUT',
             body: formData
           });
@@ -364,7 +358,6 @@
 
           if (saveResponse.ok && saveResultado.success) {
             alert('¡Felicidades! Perfil comercial activado con éxito.');
-            // Se modificó la redirección para que vaya a panel_cliente.html
             window.location.href = 'panel_cliente.html';
           } else {
             alert('Error al guardar datos comerciales: ' + saveResultado.mensaje);

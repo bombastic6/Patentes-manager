@@ -89,26 +89,7 @@
     .separator:not(:empty)::before { margin-right: .5em; }
     .separator:not(:empty)::after { margin-left: .5em; }
 
-    /* Estilo corregido para el botón de Google */
     .btn-google {
-      width: 100%;
-      background-color: #fff;
-      color: #757575;
-      border: 1px solid var(--border);
-      padding: 10px 15px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-
-  .btn-google {
       width: 100%;
       background-color: #ffffff;
       color: #757575;
@@ -165,10 +146,10 @@
 
       <div class="separator">o ingresa con</div>
 
-<button class="btn-google" type="button" onclick="window.location.href='http://localhost:3000/api/users/auth/google'">
-  <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
-  Continuar con Google
-</button>
+      <button class="btn-google" type="button" onclick="window.location.href='https://tupatente-backend.onrender.com/api/users/auth/google'">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+        Continuar con Google
+      </button>
 
       <div class="auth-footer">
         ¿Aún no estás registrado? <span class="auth-link" onclick="alternarVista(true)">Crea una cuenta aquí</span>
@@ -212,7 +193,7 @@
     const password = document.getElementById('loginPassword').value;
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/login-usuario', {
+      const response = await fetch('https://tupatente-backend.onrender.com/api/users/login-usuario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correo, password })
@@ -242,7 +223,7 @@
     const password = document.getElementById('registerPassword').value;
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/registrar_local', {
+      const response = await fetch('https://tupatente-backend.onrender.com/api/users/registrar_local', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, correo, password })

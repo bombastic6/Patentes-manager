@@ -107,9 +107,9 @@
 
   async function cargarTodo() {
     const [resT, resColab, resCli] = await Promise.all([
-      fetch('http://localhost:3000/api/comunas/regiones-y-comunas').then(r=>r.json()),
-      fetch('http://localhost:3000/api/users/admin/colaboradores-todos').then(r=>r.json()),
-      fetch('http://localhost:3000/api/users/admin/clientes-todos').then(r=>r.json())
+      fetch('https://tupatente-backend.onrender.com/api/comunas/regiones-y-comunas').then(r=>r.json()),
+      fetch('https://tupatente-backend.onrender.com/api/users/admin/colaboradores-todos').then(r=>r.json()),
+      fetch('https://tupatente-backend.onrender.com/api/users/admin/clientes-todos').then(r=>r.json())
     ]);
     DATA_TERRITORIAL = resT.data;
     TODOS_COLABS = resColab.colaboradores;
@@ -156,7 +156,7 @@
             <p><strong>RUT:</strong> ${c.rut}</p>
             <p><strong>Regiones:</strong> ${c.rango_act_region.join(', ') || 'N/A'}</p>
             <p><strong>Comunas:</strong> ${c.rango_act_comuna.join(', ') || 'N/A'}</p>
-            <a href="http://localhost:3000/api/users/admin/documento/${c.antecedentes}" target="_blank" class="btn-action" style="background:#6366f1;">Ver PDF Antecedentes</a>
+            <a href="https://tupatente-backend.onrender.com/api/users/admin/documento/${c.antecedentes}" target="_blank" class="btn-action" style="background:#6366f1;">Ver PDF Antecedentes</a>
             <button class="btn-action" style="background:#10b981;" onclick="gestionar('${c._id}', 'APROBADO')">Aprobar</button>
             <button class="btn-action" style="background:#ef4444;" onclick="gestionar('${c._id}', 'RECHAZADO')">Rechazar</button>
           </div>
@@ -199,7 +199,7 @@
   
   async function gestionar(id, estado) {
     if(!confirm("¿Confirmar acción?")) return;
-    await fetch('http://localhost:3000/api/users/admin/cambiar-estado', { 
+    await fetch('https://tupatente-backend.onrender.com/api/users/admin/cambiar-estado', { 
         method: 'POST', 
         headers: {'Content-Type': 'application/json'}, 
         body: JSON.stringify({id, estado}) 

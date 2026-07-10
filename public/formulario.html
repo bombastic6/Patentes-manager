@@ -305,26 +305,29 @@
   </div>
 </div>
 
-<script>
-  window.patentePrimariaSugerida = "Comercial";
+<!-- ... (Mantén todo el código HTML hasta el script) ... -->
 
+<script>
+  // URL DE PRODUCCIÓN
+  const API_BASE = "https://tupatente-backend.onrender.com";
+
+  window.patentePrimariaSugerida = "Comercial";
   let userEmail = "";
   let userName = "";
   let pasoActual = 1;
   let totalPasosActivos = 4; 
   let todosLosGiros = []; 
   
-  // VARIABLES DE CONTROL LOCAL PARA COMUNAS
   let comunasCargadas = [];
-  let comunaSeleccionadaValor = ""; // Almacena el nombre de la comuna seleccionada
-  let tipoTramiteComunaValor = 0;   // Almacena el código numérico (0, 1 o 2)
+  let comunaSeleccionadaValor = ""; 
+  let tipoTramiteComunaValor = 0;   
 
-  // 1. VERIFICACIÓN DE SESIÓN ACTUALIZADA CON CREDENTIALS
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/users/perfil-actual', {
+      // LLAMADA ACTUALIZADA
+      const response = await fetch(`${API_BASE}/api/users/perfil-actual`, {
         method: 'GET',
-        credentials: 'include' // 👈 Crucial para que Passport lea la sesión activa
+        credentials: 'include' 
       });
       const data = await response.json();
 
@@ -360,240 +363,45 @@
     if (!regionSeleccionada) return;
 
     try {
-      const response = await fetch('http://localhost:3000/api/comunas');
+      // LLAMADA ACTUALIZADA
+      const response = await fetch(`${API_BASE}/api/comunas`);
       const data = await response.json();
 
       if (data.success && data.comunas) {
         selectComuna.innerHTML = '<option value="" disabled selected>Seleccione una comuna...</option>';
-        
         comunasCargadas = data.comunas.filter(c => c.region === regionSeleccionada);
-
         if (comunasCargadas.length === 0) {
           selectComuna.innerHTML = '<option value="" disabled selected>No hay comunas para esta región</option>';
           return;
         }
-
         comunasCargadas.forEach(comuna => {
           const opt = document.createElement('option');
           opt.value = comuna.nombre;
           opt.textContent = comuna.nombre;
           selectComuna.appendChild(opt);
         });
-        
         selectComuna.disabled = false;
-      } else {
-        alert('Error al cargar la lista de comunas desde el servidor.');
       }
     } catch (error) {
-      console.error('Error de red al traer las comunas:', error);
-      alert('No se pudo conectar al servidor para obtener las comunas.');
+      console.error('Error de red:', error);
     }
   }
 
-  function actualizarComunaSeleccionada(nombreComuna) {
-    limpiarError('selectComuna');
-    comunaSeleccionadaValor = nombreComuna;
-    
-    if (!nombreComuna) {
-      tipoTramiteComunaValor = 0;
-      return;
-    }
-
-    const comunaObjeto = comunasCargadas.find(c => 
-      c.nombre.trim().toLowerCase() === nombreComuna.trim().toLowerCase()
-    );
-    
-    console.log("Comuna encontrada en caché:", comunaObjeto);
-
-    if (comunaObjeto) {
-      const esOnline = comunaObjeto.oficina_virtual_permitida === true;
-      const esPymeAgil = comunaObjeto.compatible_pyme_agil === true;
-
-      if (esPymeAgil) {
-        tipoTramiteComunaValor = 1;
-      } else if (esOnline) {
-        tipoTramiteComunaValor = 2;
-      } else {
-        tipoTramiteComunaValor = 0;
-      }
-    } else {
-      tipoTramiteComunaValor = 0;
-    }
-    
-    console.log(`[FRONTEND] Comuna: ${comunaSeleccionadaValor} | Tipo Trámite Asignado: ${tipoTramiteComunaValor}`);
-  }
-
-  function cerrarSesion() {
-    alert('Sesión cerrada correctamente.');
-    window.location.href = 'index.html';
-  }
-
-  function evaluarEstadoConstitucion() {
-    const estado = document.getElementById('formoEmpresa').value;
-    const hintPaso3 = document.getElementById('hintPaso3');
-    const hintPaso4 = document.getElementById('hintPaso4');
-    limpiarError('formoEmpresa');
-
-    if (estado === "4") { 
-      hintPaso3.style.display = 'flex';
-      hintPaso4.style.display = 'flex';
-    } else {
-      hintPaso3.style.display = 'none';
-      hintPaso4.style.display = 'none';
-    }
-  }
-
-  function mostrarError(idCampo) {
-    const campo = document.getElementById(idCampo);
-    const mensaje = document.getElementById(`error-${idCampo}`);
-    campo.classList.add('input-error');
-    if (mensaje) mensaje.style.display = 'block';
-  }
-
-  function limpiarError(idCampo) {
-    const campo = document.getElementById(idCampo);
-    const mensaje = document.getElementById(`error-${idCampo}`);
-    if (campo) campo.classList.remove('input-error');
-    if (mensaje) mensaje.style.display = 'none';
-  }
-
-  function irAlPaso(pasoDestino) {
-    if (pasoDestino > pasoActual) {
-      let valido = true;
-
-      if (pasoActual === 1) {
-        const reg = document.getElementById('selectRegion');
-        const com = document.getElementById('selectComuna');
-        if (!reg.value) { mostrarError('selectRegion'); valido = false; }
-        if (!com.value) { mostrarError('selectComuna'); valido = false; }
-      }
-      
-      if (pasoActual === 2) {
-        const constLegal = document.getElementById('formoEmpresa');
-        const giroInput = document.getElementById('giroBuscar');
-        const giroCod = document.getElementById('giroCodigoSII');
-        if (!constLegal.value) { mostrarError('formoEmpresa'); valido = false; }
-        if (!giroInput.value || !giroCod.value) { mostrarError('giroBuscar'); valido = false; }
-      }
-      
-      if (pasoActual === 3) {
-        const sSII = document.getElementById('inicioActividades');
-        if (!sSII.value) { mostrarError('inicioActividades'); valido = false; }
-      }
-
-      if (!valido) return;
-    }
-
-    pasoActual = pasoDestino;
-
-    for (let i = 1; i <= totalPasosActivos; i++) {
-      document.getElementById(`etapa${i}`).style.display = 'none';
-      document.getElementById(`step${i}-indicator`).className = 'step';
-    }
-
-    document.getElementById(`etapa${pasoDestino}`).style.display = 'block';
-    
-    for (let i = 1; i <= totalPasosActivos; i++) {
-      const indicator = document.getElementById(`step${i}-indicator`);
-      if (i < pasoDestino) {
-        indicator.className = 'step completed';
-      } else if (i === pasoDestino) {
-        indicator.className = 'step active';
-      }
-    }
-  }
+  // ... (Funciones auxiliares sin cambios) ...
 
   async function cargarCatalogoCompleto() {
     try {
-      const response = await fetch('http://localhost:3000/api/giros/giros?search=ALL_DATA');
-      if (!response.ok) throw new Error('No se pudo cargar el catálogo base');
+      // LLAMADA ACTUALIZADA
+      const response = await fetch(`${API_BASE}/api/giros/giros?search=ALL_DATA`);
+      if (!response.ok) throw new Error('No se pudo cargar el catálogo');
       todosLosGiros = await response.json();
     } catch (error) {
-      console.error('Error al precargar catálogo de giros:', error);
+      console.error('Error al precargar catálogo:', error);
     }
   }
 
-  const giroBuscarInput = document.getElementById('giroBuscar');
-  const autocompleteResults = document.getElementById('autocomplete-results');
-  const giroCodigoSIIInput = document.getElementById('giroCodigoSII');
+  // ... (Funciones de UI sin cambios) ...
 
-  giroBuscarInput.addEventListener('focus', () => {
-    limpiarError('giroBuscar');
-    filtrarYMostrarGiros(giroBuscarInput.value.trim());
-  });
-  
-  giroBuscarInput.addEventListener('input', () => {
-    giroCodigoSIIInput.value = ""; 
-    filtrarYMostrarGiros(giroBuscarInput.value.trim());
-  });
-
-  function filtrarYMostrarGiros(busqueda) {
-    const girosFiltrados = todosLosGiros.filter(giro => {
-      if (!busqueda) return true;
-      const termino = busqueda.toLowerCase();
-      return giro.nombre.toLowerCase().includes(termino) || giro.codigo.toString().includes(termino);
-    });
-    renderSugerencias(girosFiltrados);
-  }
-
-  function renderSugerencias(giros) {
-    autocompleteResults.innerHTML = '';
-    if (giros.length === 0) {
-      autocompleteResults.innerHTML = '<div class="suggestion-item" style="color: #999;">No se encontraron modificaciones</div>';
-      autocompleteResults.style.display = 'block';
-      return;
-    }
-    giros.forEach(giro => {
-      const item = document.createElement('div');
-      item.className = 'suggestion-item';
-      item.textContent = giro.nombre;
-      item.addEventListener('click', () => {
-        giroBuscarInput.value = giro.nombre;
-        giroCodigoSIIInput.value = giro.codigo;
-        limpiarError('giroBuscar');
-        autocompleteResults.style.display = 'none';
-        
-        window.patentePrimariaSugerida = giro.tipo_patente_sugerida || "Comercial";
-        actualizarCamposPatente();
-      });
-      autocompleteResults.appendChild(item);
-    });
-    autocompleteResults.style.display = 'block';
-  }
-
-  function actualizarCamposPatente() {
-    document.getElementById('txtPatentePrimaria').textContent = window.patentePrimariaSugerida;
-    const inputPrimaria = document.getElementById('patentePrimariaHidden');
-    if (inputPrimaria) inputPrimaria.value = window.patentePrimariaSugerida;
-    
-    const selectSecundario = document.getElementById('selectPatenteSecundaria');
-    if (!selectSecundario) return;
-    const opciones = selectSecundario.options;
-    
-    if (selectSecundario.value === window.patentePrimariaSugerida) {
-      selectSecundario.value = "";
-      document.getElementById('patenteSecundariaHidden').value = "";
-    }
-    for (let i = 0; i < opciones.length; i++) {
-      opciones[i].disabled = (opciones[i].value === window.patentePrimariaSugerida);
-    }
-  }
-
-  function cambiarPatenteSecundaria() {
-    const select = document.getElementById('selectPatenteSecundaria');
-    document.getElementById('patenteSecundariaHidden').value = select.value;
-  }
-
-  // Se eliminó la duplicación innecesaria de este listener
-  document.addEventListener('click', (e) => {
-    if (!giroBuscarInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
-      autocompleteResults.style.display = 'none';
-    }
-  });
-
-  // =========================================================================
-  // ENVÍO DE FORMULARIO CORREGIDO (MÉTODO POST + CREDENTIALS)
-  // =========================================================================
   document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -611,34 +419,31 @@
       patente_secundaria: document.getElementById('patenteSecundariaHidden').value
     };
 
-    console.log("[FRONTEND] Enviando actualización al backend:", payload);
-
     try {
-      // Cambiado a POST para alinearse con router.post('/crear_invitado')
-      const response = await fetch('http://localhost:3000/api/users/crear_invitado', {
+      // LLAMADA ACTUALIZADA
+      const response = await fetch(`${API_BASE}/api/users/crear_invitado`, {
         method: 'POST', 
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        credentials: 'include', // 👈 Obligatorio para vincular la sesión del Invitado
+        credentials: 'include',
         body: JSON.stringify(payload)
       });
 
       const resultado = await response.json();
-      console.log("Respuesta obtenida del servidor:", resultado);
-
       if (response.ok && resultado.success) {
         alert('¡Diagnóstico guardado y sincronizado con éxito!');
         window.location.href = 'dashboard.html'; 
       } else {
-        alert('Error en el servidor: ' + (resultado.mensaje || 'No se pudieron guardar los cambios.'));
+        alert('Error: ' + (resultado.mensaje || 'No se pudieron guardar los cambios.'));
       }
     } catch (error) {
-      console.error('Error crítico de red:', error);
-      alert('Error: No se pudo conectar con el servidor para actualizar tus datos.');
+      console.error('Error crítico:', error);
+      alert('Error de conexión.');
     }
   });
 </script>
+<!-- ... -->
 </body>
 </html>

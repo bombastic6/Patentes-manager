@@ -412,10 +412,13 @@
 </main>
 
 <script>
+  // URL DE PRODUCCIÓN
+  const API_BASE = "https://tupatente-backend.onrender.com";
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // Se eliminó el prefijo 'http://localhost:3000' para usar rutas relativas seguras
-      const response = await fetch('/api/users/perfil-actual');
+      // Ruta actualizada a la URL absoluta en Render
+      const response = await fetch(`${API_BASE}/api/users/perfil-actual`);
       const resultado = await response.json();
 
       if (response.ok && resultado.success && resultado.usuario) {
@@ -445,7 +448,7 @@
           // Redirigir al portal general de RES donde Pyme Ágil maneja todo de forma empaquetada
           btnSii.href = "https://www.registrodeempresasysociedades.cl/";
           btnSii.innerHTML = "Ir al Registro de Empresas y Sociedades ↗";
-          btnSii.style.backgroundColor = "#0070f3"; // Color primario para romper el naranja clásico
+          btnSii.style.backgroundColor = "#0070f3"; 
           btnSii.style.boxShadow = "0 4px 10px rgba(0, 112, 243, 0.3)";
 
           txtInstruccion.innerHTML = `

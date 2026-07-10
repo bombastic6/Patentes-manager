@@ -27,14 +27,12 @@
     .hidden { display: none !important; }
     .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; }
 
-    /* Barras de desplazamiento */
     .scroll-section {
         max-height: 500px;
         overflow-y: auto;
         padding-right: 10px;
     }
 
-    /* Detalles expandibles */
     .details {
         display: none;
         margin-top: 10px;
@@ -42,7 +40,7 @@
         background: #f1f5f9;
         border-radius: 6px;
         font-size: 0.85rem;
-        cursor: default; /* Para que al clickear el detalle no colapse */
+        cursor: default; 
     }
     .btn-tomar {
         margin-top: 10px;
@@ -90,10 +88,11 @@
 </div>
 
 <script>
+  const API_BASE = "https://tupatente-backend.onrender.com";
   let usuarioActual = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const res = await fetch('http://localhost:3000/api/users/perfil-actual');
+    const res = await fetch(`${API_BASE}/api/users/perfil-actual`);
     const data = await res.json();
     if (!data.success) return window.location.href = "login_colab.html";
     
@@ -111,13 +110,12 @@
 
   async function cargarClientes() {
       try {
-          const res = await fetch('http://localhost:3000/api/users/clientes-cobertura');
+          const res = await fetch(`${API_BASE}/api/users/clientes-cobertura`);
           const data = await res.json();
           
           const listDisp = document.getElementById('listDisponibles');
           const listMis = document.getElementById('listMisClientes');
 
-          // --- RENDERIZAR CLIENTES DISPONIBLES ---
           if (data.disponibles && data.disponibles.length > 0) {
               listDisp.innerHTML = data.disponibles.map(c => `
                   <div class="client-item" onclick="toggleDetails('disp-${c._id}')">
@@ -137,7 +135,6 @@
               listDisp.innerHTML = "<p>No hay clientes disponibles en tus zonas.</p>";
           }
 
-          // --- RENDERIZAR MIS CLIENTES ---
           if (data.misClientes && data.misClientes.length > 0) {
               listMis.innerHTML = data.misClientes.map(c => `
                   <div class="client-item" onclick="toggleDetails('mis-${c._id}')">
@@ -170,7 +167,7 @@
   }
 
   async function tomarCliente(clienteId) {
-    const res = await fetch('http://localhost:3000/api/users/colab/tomar-cliente', {
+    const res = await fetch(`${API_BASE}/api/users/colab/tomar-cliente`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ clienteId })
@@ -191,7 +188,7 @@
   }
 
   async function cerrarSesion() {
-    await fetch('http://localhost:3000/api/users/auth/logout');
+    await fetch(`${API_BASE}/api/users/auth/logout`);
     window.location.href = "login_colab.html";
   }
 </script>
