@@ -31,7 +31,6 @@ const upload = multer({
 // =========================================================================
 const googleVerify = async (accessToken, refreshToken, profile, done) => {
   try {
-    // Verificación de seguridad para evitar error 500
     const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
     
     if (!email) {
@@ -59,10 +58,22 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
     }
     return done(null, user);
   } catch (error) {
-    console.error("Error detallado en googleVerify:", error); // Esto te dirá qué falla en los Logs
+    console.error("Error detallado en googleVerify:", error);
     return done(error, null);
   }
 };
+
+// Depuración: Verifica que las variables existan antes de configurar Passport
+console.log("Debug - ClientID existe:", !!process.env.GOOGLE_CLIENT_ID);
+console.log("Debug - ClientSecret existe:", !!process.env.GOOGLE_CLIENT_SECRET);
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "https://tupatente-backend.onrender.com/api/users/auth/google/callback"
+  },
+  googleVerify
+));
 
 passport.use
 console.log("Debug - ClientID:", process.env.GOOGLE_CLIENT_ID ? "Cargado" : "NO CARGADO");
