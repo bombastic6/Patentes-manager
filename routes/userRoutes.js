@@ -68,8 +68,8 @@ console.log("Debug - ClientID existe:", !!process.env.GOOGLE_CLIENT_ID);
 console.log("Debug - ClientSecret existe:", !!process.env.GOOGLE_CLIENT_SECRET);
 
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: process.env.GOOGLE_CLIENT_ID || "203058244125-vfh9eugdb4q9ecsdqbs81u4sjdq9p318.apps.googleusercontent.com",
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "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",
     callbackURL: "https://tupatente-backend.onrender.com/api/users/auth/google/callback"
   },
   googleVerify
