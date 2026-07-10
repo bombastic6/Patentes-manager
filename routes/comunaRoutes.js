@@ -1,5 +1,5 @@
 import express from 'express';
-import Comuna from '../models/Comuna.js';
+import Comuna from '../models/comuna.js';
 
 const router = express.Router();
 
