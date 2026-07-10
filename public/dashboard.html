@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Hoja de Ruta - Diagnóstico Comercial</title>
+  <style>
+    :root {
+      --primary: #0070f3;
+      --success: #10b981;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --border: #cccccc;
+      --danger: #ef4444;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+      --secondary-btn: #64748b;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* --- NAVBAR UNIFICADO --- */
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link-ayuda {
+      color: #4b5563;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .nav-link-ayuda:hover {
+      color: var(--primary);
+    }
+    .btn-logout {
+      background-color: var(--danger);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    /* --- CONTENEDOR PRINCIPAL --- */
+    .main-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 1200px; 
+    }
+
+    .header-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    h2 { color: #111; margin: 0; }
+
+    .btn-edit-form {
+      background-color: #ffffff;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-edit-form:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    /* --- SISTEMA ESTRUCTURAL EN COLUMNAS HORIZONTALES --- */
+    .roadmap-wrapper {
+      position: relative;
+      margin-top: 20px;
+    }
+
+    .roadmap-line {
+      position: absolute;
+      top: 17px;
+      left: 12%;
+      right: 12%;
+      height: 3px;
+      background-color: var(--border);
+      z-index: 1;
+    }
+
+    .roadmap-grid {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 2;
+      position: relative;
+    }
+
+    .roadmap-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+
+    .step-node {
+      width: 35px; height: 35px; 
+      background-color: var(--border); 
+      color: white; 
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; 
+      font-weight: bold; 
+      margin-bottom: 25px; 
+      box-shadow: 0 0 0 4px var(--card-bg); 
+    }
+    .step-node.done { background-color: var(--success); }
+    .step-node.pending { background-color: var(--primary); }
+    .step-node.goal { background-color: #475569; } 
+
+    /* --- TARJETAS DE HITOS --- */
+    .milestone-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-top: 5px solid var(--border); 
+      padding: 20px;
+      border-radius: 8px;
+      width: 100%;
+      min-height: 290px; 
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
+    }
+    
+    .milestone-card.status-done {
+      border-top-color: var(--success);
+      background-color: #f0fdf4;
+    }
+    .milestone-card.status-pending {
+      border-top-color: var(--primary);
+      background-color: #f0f7ff;
+    }
+    .milestone-card.status-goal {
+      border-top-color: #475569;
+      background-color: #f8fafc;
+    }
+
+    .card-header {
+      font-weight: bold;
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: white;
+      margin-top: 4px;
+    }
+    .badge.bg-done { background-color: var(--success); }
+    .badge.bg-pending { background-color: var(--primary); }
+    .badge.bg-goal { background-color: #475569; }
+
+    .user-selection-box {
+      margin-top: 12px;
+      background-color: rgba(255, 255, 255, 0.7);
+      border: 1px dashed rgba(0, 0, 0, 0.08);
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .selection-label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .selection-value {
+      font-size: 0.85rem;
+      color: #1e293b;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .btn-action {
+      display: block;
+      text-align: center;
+      background-color: var(--primary);
+      color: white;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      margin-top: 12px; 
+      transition: background-color 0.2s;
+    }
+    .btn-action:hover { background-color: #0056b3; }
+
+    /* BOTÓN SECUNDARIO PARA TUTORIAL COMUNA */
+    .btn-secondary {
+      display: block;
+      text-align: center;
+      background-color: transparent;
+      color: var(--secondary-btn);
+      border: 1px solid var(--secondary-btn);
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+      background-color: var(--secondary-btn);
+      color: white;
+    }
+    
+    .text-muted { color: #64748b; font-size: 0.85rem; line-height: 1.4; margin: 8px 0 0 0; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="#" class="navbar-brand">TuPatente</a>
+  <div class="navbar-menu">
+    <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
+    <button class="btn-logout" id="btnLogout">Cerrar Sesión</button>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="container">
+    
+    <div class="header-area">
+      <h2>Tu Plan de Ruta Personalizado</h2>
+      <a href="formulario.html" class="btn-edit-form">
+        Modificar Datos del Diagnóstico
+      </a>
+    </div>
+
+    <div class="roadmap-wrapper">
+      <div class="roadmap-line"></div>
+      <div class="roadmap-grid" id="roadmapGridContainer"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const MAPA_CONSTITUCION = {
+    "1": "Persona Natural",
+    "2": "Tu Empresa en un Día",
+    "3": "Método Tradicional",
+    "4": "En Proceso / Informándose"
+  };
+
+  const MAPA_SII = {
+    "1": "No registra inicio ante el SII",
+    "2": "Segunda Categoría",
+    "3": "Primera Categoría"
+  };
+
+  let todosLosGiros = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
+
+    try {
+      const resGiros = await fetch('http://localhost:3000/api/giros/giros?search=ALL_DATA');
+      if (resGiros.ok) {
+        todosLosGiros = await resGiros.json();
+      }
+
+      const response = await fetch('http://localhost:3000/api/users/perfil-actual');
+      const resultado = await response.json();
+
+      if (!response.ok || !resultado.success) {
+        alert('Sesión expirada o inválida. Redirigiendo...');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      generarHojaRuta(resultado.usuario);
+    } catch (error) {
+      console.error('Error al cargar la hoja de ruta:', error);
+      alert('Error de conexión con el servidor.');
+    }
+  });
+
+  function ejecutarLogout() {
+    alert('Sesión cerrada correctamente.');
+    window.location.href = 'index.html';
+  }
+
+  function obtenerNombreGiro(codigo) {
+    if (!codigo) return "No especificado";
+    const giroEncontrado = todosLosGiros.find(g => g.codigo.toString() === codigo.toString());
+    if (giroEncontrado) {
+      return giroEncontrado.nombre.replace(/\s*\(.*?\)\s*/g, '').trim();
+    }
+    return `Código ${codigo}`;
+  }
+
+  function generarHojaRuta(usuario) {
+    const gridContainer = document.getElementById('roadmapGridContainer');
+    gridContainer.innerHTML = ''; 
+
+    // Validación Paso 1
+    const paso1Completado = (usuario.region_tramite && usuario.region_tramite !== 'No especificada');
+    
+    // Validación Paso 2: Constitución Legal y Actividad
+    const tieneConstitucionValida = usuario.constitucion_legal && usuario.constitucion_legal != "" && usuario.constitucion_legal != "4" && usuario.constitucion_legal != 4;
+    const pasoGiroListo = usuario.giro_empresa_codigo && usuario.giro_empresa_codigo !== "";
+    const paso2Completado = tieneConstitucionValida && pasoGiroListo;
+    
+    // Validación Paso 3
+    const paso3Completado = (usuario.situacion_sii == "2" || usuario.situacion_sii == "3");
+    
+    // Control de desbloqueo del trámite final
+    const todosPreviosListos = paso1Completado && paso2Completado && paso3Completado;
+
+    let urlPaso2 = "tutorial_constitucion.html";
+
+    const hitos = [
+      {
+        id: 1,
+        titulo: "1. Ubicación Territorial",
+        completado: paso1Completado,
+        claseEstado: paso1Completado ? 'status-done' : 'status-pending',
+        claseNodo: paso1Completado ? 'step-node done' : 'step-node pending',
+        textoBadge: paso1Completado ? 'COMPLETADO' : 'PENDIENTE',
+        claseBadge: paso1Completado ? 'bg-done' : 'bg-pending',
+        descripcion: paso1Completado 
+          ? "Territorio e instalación comunal registrada con éxito."
+          : "Falta definir la región y comuna para la simulación territorial.",
+        htmlEleccion: paso1Completado ? `
+          <div class="user-selection-box">
+            <div class="selection-label">Tu Ubicación:</div>
+            <div class="selection-value">Comuna: ${usuario.comuna_tramite}, Región de ${usuario.region_tramite}</div>
+          </div>
+        ` : '',
+        // Renderiza el botón del trámite tradicional si falta completar, pero SIEMPRE añade el botón al tutorial de comunas
+        htmlBotones: `
+          ${!paso1Completado ? `<a href="formulario.html" class="btn-action">Iniciar trámite</a>` : ''}
+          <a href="tutorial_comuna.html" class="btn-secondary">Ver Tutorial Comunal</a>
+        `
+      },
+      {
+        id: 2,
+        titulo: "2. Constitución y Actividad",
+        completado: paso2Completado,
+        claseEstado: paso2Completado ? 'status-done' : 'status-pending',
+        claseNodo: paso2Completado ? 'step-node done' : 'step-node pending',
+        textoBadge: paso2Completado ? 'COMPLETADO' : 'PENDIENTE',
+        claseBadge: paso2Completado ? 'bg-done' : 'bg-pending',
+        descripcion: paso2Completado 
+          ? "Estructura legal y actividad económica clasificada."
+          : "Se requiere formalizar la personería legal o revisar la guía de constitución.",
+        htmlEleccion: (usuario.constitucion_legal || pasoGiroListo) ? `
+          <div class="user-selection-box">
+            <div class="selection-label">Forma Legal:</div>
+            <div class="selection-value">${MAPA_CONSTITUCION[usuario.constitucion_legal] || 'No definida'}</div>
+            <div class="selection-label" style="margin-top:6px;">Rubro / Actividad:</div>
+            <div class="selection-value">${obtenerNombreGiro(usuario.giro_empresa_codigo)}</div>
+          </div>
+        ` : '',
+        htmlBotones: !paso2Completado ? `<a href="${urlPaso2}" class="btn-action">Iniciar trámite</a>` : ''
+      },
+      {
+        id: 3,
+        titulo: "3. Impuestos (SII)",
+        completado: paso3Completado,
+        claseEstado: paso3Completado ? 'status-done' : 'status-pending',
+        claseNodo: paso3Completado ? 'step-node done' : 'step-node pending',
+        textoBadge: paso3Completado ? 'COMPLETADO' : 'PENDIENTE',
+        claseBadge: paso3Completado ? 'bg-done' : 'bg-pending',
+        descripcion: paso3Completado 
+          ? "Inicio de Actividades proyectado de manera correcta ante el SII."
+          : "Falta declarar el estado tributario del negocio en impuestos internos.",
+        htmlEleccion: paso3Completado ? `
+          <div class="user-selection-box">
+            <div class="selection-label">Estado Tributario:</div>
+            <div class="selection-value">${MAPA_SII[usuario.situacion_sii] || 'Declarado'}</div>
+          </div>
+        ` : '',
+        htmlBotones: !paso3Completado ? `<a href="tutorial_sii.html" class="btn-action">Iniciar trámite</a>` : ''
+      },
+      {
+        id: 4,
+        titulo: "4. Meta: Patente Final",
+        completado: false, 
+        claseEstado: 'status-goal',
+        claseNodo: 'step-node goal',
+        textoBadge: todosPreviosListos ? 'DESBLOQUEADO' : 'BLOQUEADO',
+        claseBadge: 'bg-goal',
+        descripcion: todosPreviosListos
+          ? "Has configurado todos tus hitos comerciales previos de manera óptima."
+          : "Esta fase final se ejecutará formalmente al completar los 3 hitos de diagnóstico anteriores.",
+        // AHORA SIEMPRE MUESTRA LAS OPCIONES ASIGNADAS INDEPENDIENTEMENTE DE SI ESTÁ BLOQUEADO O NO
+        htmlEleccion: `
+          <div class="user-selection-box" style="background-color: var(--info-bg); border-color: var(--info-border);">
+            <div class="selection-label" style="color: var(--info-text);">Patente Sugerida:</div>
+            <div class="selection-value" style="color: var(--info-text); font-size: 0.95rem;">Patente ${usuario.patente_primaria || 'Comercial'}</div>
+            ${usuario.patente_secundaria ? `<div class="selection-value" style="color: #0369a1; font-size: 0.8rem; margin-top:2px;">Adicional: ${usuario.patente_secundaria}</div>` : ''}
+          </div>
+        `,
+        // Solo renderiza el enlace del trámite final si todos los pasos previos están OK
+        htmlBotones: todosPreviosListos ? `<a href="solicitud_patente.html" class="btn-action">Iniciar trámite</a>` : ''
+      }
+    ];
+
+    hitos.forEach(hito => {
+      const columna = document.createElement('div');
+      columna.className = 'roadmap-column';
+
+      const simboloNodo = (hito.completado && hito.id !== 4) ? '✓' : hito.id;
+
+      columna.innerHTML = `
+        <div class="${hito.claseNodo}">${simboloNodo}</div>
+        <div class="milestone-card ${hito.claseEstado}">
+          <div>
+            <div class="card-header">${hito.titulo}</div>
+            <span class="badge ${hito.claseBadge}">${hito.textoBadge}</span>
+            <p class="text-muted">${hito.descripcion}</p>
+            ${hito.htmlEleccion}
+          </div>
+          <div>
+            ${hito.htmlBotones}
+          </div>
+        </div>
+      `;
+
+      gridContainer.appendChild(columna);
+    });
+  }
+</script>
+</body>
+</html>

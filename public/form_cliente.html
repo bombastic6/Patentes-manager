@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Cliente - TuPatente</title>
+  <style>
+    :root {
+      --primary: #0070f3;
+      --success: #10b981;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --text-muted: #64748b;
+      --border: #cccccc;
+      --danger: #ef4444;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* --- NAVBAR UNIFICADO (Basado en Dashboard) --- */
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-sizing: border-box;
+    }
+    .navbar-brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link-ayuda {
+      color: #4b5563;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .nav-link-ayuda:hover {
+      color: var(--primary);
+    }
+    .btn-logout {
+      background-color: var(--danger);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    /* --- CONTENEDOR PRINCIPAL --- */
+    .main-content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px; 
+      box-sizing: border-box;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #111;
+      font-size: 1.8rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-top: 25px;
+      margin-bottom: 15px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    input[type="file"] {
+      background-color: #f8fafc;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    input[readonly] {
+      background-color: #f8fafc;
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .btn-submit {
+      display: block;
+      width: 100%;
+      background-color: var(--success);
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+      transition: background-color 0.2s, transform 0.1s;
+      margin-top: 30px;
+    }
+
+    .btn-submit:hover {
+      background-color: #059669;
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="dashboard.html" class="navbar-brand">TuPatente</a>
+    <div class="navbar-menu">
+      <a href="dashboard.html" class="nav-link-ayuda">Volver a mi Ruta</a>
+      <button class="btn-logout" id="btnLogout">Cerrar Sesión</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+      <h2>Completa tu Perfil de Cliente</h2>
+      <p style="color: var(--text-muted); margin-bottom: 25px;">Para avanzar con los datos comerciales de tu negocio, requerimos la siguiente información obligatoria en su totalidad.</p>
+
+      <form id="formCliente" enctype="multipart/form-data">
+        
+        <div class="section-title">Datos de Cuenta</div>
+        <div class="form-group">
+          <label for="nombre">Nombre Completo</label>
+          <input type="text" id="nombre" placeholder="Cargando nombre..." required>
+        </div>
+        <div class="form-group">
+          <label for="correo">Correo Electrónico</label>
+          <input type="email" id="correo" placeholder="Cargando correo..." required>
+        </div>
+
+        <div class="section-title">Información Personal Comercial</div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="rut">RUT Empresa / Persona Natural</label>
+            <input type="text" id="rut" placeholder="12.345.678-K" required>
+          </div>
+          <div class="form-group">
+            <label for="telefono">Teléfono de Contacto</label>
+            <input type="text" id="telefono" placeholder="+56912345678" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="edad">Edad</label>
+            <input type="number" id="edad" min="18" placeholder="Ej: 30" required>
+          </div>
+          <div class="form-group">
+            <label for="profesion">Profesión u Oficio</label>
+            <input type="text" id="profesion" placeholder="Ej: Ingeniero, Comerciante" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="residencia">Dirección Particular (Residencia)</label>
+          <input type="text" id="residencia" placeholder="Tu dirección de hogar" required>
+        </div>
+
+        <div class="section-title">📍 Lugar donde ejercerá la Actividad</div>
+        
+        <div class="form-group">
+          <label for="lugar_direccion">Dirección Comercial del Local/Oficina</label>
+          <input type="text" id="lugar_direccion" placeholder="Av. Principal 123, Local 4" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="lugar_region">Región</label>
+            <input type="text" id="lugar_region" placeholder="Región de Valparaíso" required>
+          </div>
+          <div class="form-group">
+            <label for="lugar_comuna">Comuna</label>
+            <input type="text" id="lugar_comuna" placeholder="Quilpué" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="file_propietario">Acreditación de Propiedad / Arriendo (PDF)</label>
+            <input type="file" id="file_propietario" accept="application/pdf" required>
+          </div>
+          <div class="form-group">
+            <label for="lugar_apta_act">¿El espacio cuenta con infraestructura apta?</label>
+            <select id="lugar_apta_act" required>
+              <option value="" disabled selected>Seleccione una opción</option>
+              <option value="SI">Sí, cumple con los requerimientos básicos</option>
+              <option value="NO">No, requiere modificaciones estructurales</option>
+              <option value="EN_REVISION">En revisión por Dirección de Obras</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="file_antecedentes">Documentos de Antecedentes u Observaciones (PDF Obligatorio)</label>
+          <input type="file" id="file_antecedentes" accept="application/pdf" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Guardar Datos y Continuar</button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Evento de cierre de sesión heredado del dashboard
+      document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
+
+      // 1. AUTORELLENAR DATOS PREVIOS CON EL PERFIL ACTUAL EN SESIÓN
+      try {
+        const response = await fetch('/api/users/perfil-actual');
+        const resultado = await response.json();
+
+        if (response.ok && resultado.success && resultado.usuario) {
+          const u = resultado.usuario;
+          
+          document.getElementById('nombre').value = u.nombre || '';
+          document.getElementById('correo').value = u.correo || '';
+
+          if (u.comuna_tramite && u.comuna_tramite !== 'No especificada') {
+            document.getElementById('lugar_comuna').value = u.comuna_tramite;
+          }
+          if (u.region_tramite && u.region_tramite !== 'No especificada') {
+            document.getElementById('lugar_region').value = u.region_tramite;
+          }
+        } else {
+          alert('No se pudo cargar la sesión. Redirigiendo al login...');
+          window.location.href = 'index.html';
+        }
+      } catch (error) {
+        console.error('Error al precargar datos:', error);
+      }
+
+      // 2. ENVÍO DE FORMULARIO - ACTUALIZACIÓN DE ROL A 'CLIENTE'
+      document.getElementById('formCliente').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+
+        // Datos del Formulario
+        formData.append('nombre', document.getElementById('nombre').value.trim());
+        formData.append('correo', document.getElementById('correo').value.trim());
+        formData.append('rut', document.getElementById('rut').value.trim());
+        formData.append('telefono', document.getElementById('telefono').value.trim());
+        formData.append('edad', parseInt(document.getElementById('edad').value));
+        formData.append('profesion', document.getElementById('profesion').value.trim());
+        formData.append('residencia', document.getElementById('residencia').value.trim());
+        formData.append('rol', 'CLIENTE');
+
+        formData.append('lugar_direccion', document.getElementById('lugar_direccion').value.trim());
+        formData.append('lugar_region', document.getElementById('lugar_region').value.trim());
+        formData.append('lugar_comuna', document.getElementById('lugar_comuna').value.trim());
+        formData.append('lugar_apta_Act', document.getElementById('lugar_apta_act').value);
+
+        // Archivos requeridos
+        const filePropietario = document.getElementById('file_propietario').files[0];
+        if (filePropietario) {
+          formData.append('file_propietario', filePropietario); 
+        }
+
+        const fileAntecedentes = document.getElementById('file_antecedentes').files[0];
+        if (fileAntecedentes) {
+          formData.append('file_antecedentes', fileAntecedentes);
+        }
+
+        try {
+          const saveResponse = await fetch('/api/users/actualizar-a-cliente', {
+            method: 'PUT',
+            body: formData
+          });
+
+          const saveResultado = await saveResponse.json();
+
+          if (saveResponse.ok && saveResultado.success) {
+            alert('¡Felicidades! Perfil comercial activado con éxito.');
+            // Se modificó la redirección para que vaya a panel_cliente.html
+            window.location.href = 'panel_cliente.html';
+          } else {
+            alert('Error al guardar datos comerciales: ' + saveResultado.mensaje);
+          }
+        } catch (error) {
+          console.error('Error en la petición:', error);
+          alert('Error de red al intentar actualizar el rol del usuario.');
+        }
+      });
+    });
+
+    function ejecutarLogout() {
+      alert('Sesión cerrada correctamente.');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

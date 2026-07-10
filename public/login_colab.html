@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Colaboradores Técnicos</title>
+  <style>
+    :root { 
+      --primary: #2563eb; --primary-hover: #1d4ed8; --bg: #f8fafc; 
+      --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; 
+      --border: #cbd5e1; --success: #10b981; 
+    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+    .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; }
+    .navbar-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+    .btn-return { background-color: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem; }
+    .main-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px); padding: 20px; }
+    .container { width: 100%; max-width: 550px; }
+    .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 30px; }
+    .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 25px; }
+    .tab-btn { flex: 1; text-align: center; padding: 12px; background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500; }
+    input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+    .row { display: flex; gap: 15px; }
+    .row .form-group { flex: 1; }
+    .territorial-box { background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 15px; }
+    .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 35px; }
+    .tag { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; font-weight: 500; }
+    .remove-btn { background: none; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; padding: 0; margin-left: 5px; }
+    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="#" class="navbar-brand">TuPatente (Colaboradores)</a>
+  <a href="index.html" class="btn-return">Volver</a>
+</nav>
+
+<div class="main-wrapper">
+  <div class="container">
+    <div class="card">
+      <div id="navigationTabs" class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Iniciar Sesión</button>
+        <button class="tab-btn" onclick="switchTab('register')">Postular como Colaborador</button>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group"><label>Correo Electrónico</label><input type="email" name="correo" required></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" name="password" required></div>
+        <button type="submit" class="btn-submit">Ingresar</button>
+      </form>
+
+      <form id="registerForm" class="hidden">
+        <div class="form-group"><label>Nombre Completo</label><input type="text" name="nombre" required></div>
+        <div class="row">
+          <div class="form-group"><label>Correo</label><input type="email" name="correo" required></div>
+          <div class="form-group"><label>Contraseña</label><input type="password" name="password" required></div>
+        </div>
+        <div class="row">
+          <div class="form-group"><label>RUT</label><input type="text" name="rut" required></div>
+          <div class="form-group"><label>Teléfono</label><input type="tel" name="telefono" required></div>
+        </div>
+        <div class="territorial-box">
+          <label>Cobertura Territorial</label>
+          <div class="row">
+            <div class="form-group"><select id="selectorRegion"><option value="">Cargando regiones...</option></select></div>
+            <div class="form-group"><select id="selectorComuna" disabled><option value="">-- Elige una comuna --</option></select></div>
+          </div>
+          <div id="tagsContainer" class="tags-container"></div>
+        </div>
+        <div class="form-group"><label>PDF Antecedentes</label><input type="file" name="file_antecedentes" accept="application/pdf" required></div>
+        <button type="submit" class="btn-submit">Enviar Postulación</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    let DATA_TERRITORIAL = {}, comunasSeleccionadas = [];
+    const selectRegion = document.getElementById('selectorRegion'), selectComuna = document.getElementById('selectorComuna'), tagsContainer = document.getElementById('tagsContainer');
+
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active'));
+        document.getElementById('loginForm').classList.toggle('hidden');
+        document.getElementById('registerForm').classList.toggle('hidden');
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const res = await fetch('http://localhost:3000/api/comunas/regiones-y-comunas').then(r=>r.json());
+            if (res.success) {
+                DATA_TERRITORIAL = res.data;
+                selectRegion.innerHTML = '<option value="">-- Elige una región --</option>';
+                Object.keys(DATA_TERRITORIAL).forEach(r => selectRegion.innerHTML += `<option value="${r}">Región ${r}</option>`);
+            }
+        } catch (e) { console.error(e); }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const dataObj = Object.fromEntries(formData.entries());
+
+        try {
+            const res = await fetch('http://localhost:3000/api/users/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataObj)
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+                window.location.href = data.redirectUrl;
+            } else {
+                alert(data.mensaje);
+            }
+        } catch (err) {
+            alert("Error al conectar con el servidor.");
+        }
+    });
+
+    function renderizarTags() {
+        tagsContainer.innerHTML = comunasSeleccionadas.length === 0 ? '<span style="color:#64748b; font-size:0.8rem;">Ninguna comuna seleccionada.</span>' : '';
+        comunasSeleccionadas.forEach((item, i) => {
+            const div = document.createElement('div');
+            div.className = 'tag';
+            div.style.backgroundColor = item.region.includes('Valparaíso') ? '#e0f2fe' : '#ffedd5';
+            div.style.color = item.region.includes('Valparaíso') ? '#0369a1' : '#c2410c';
+            div.innerHTML = `${item.comuna} <button type="button" class="remove-btn" onclick="eliminarTag(${i})">&times;</button>`;
+            tagsContainer.appendChild(div);
+        });
+    }
+
+    window.eliminarTag = (i) => { comunasSeleccionadas.splice(i, 1); renderizarTags(); };
+
+    selectRegion.addEventListener('change', (e) => {
+        const reg = e.target.value;
+        selectComuna.innerHTML = '<option value="">-- Elige una comuna --</option>';
+        if (reg && DATA_TERRITORIAL[reg]) {
+            selectComuna.disabled = false;
+            DATA_TERRITORIAL[reg].forEach(c => selectComuna.innerHTML += `<option value="${c}">${c}</option>`);
+        } else selectComuna.disabled = true;
+    });
+
+    selectComuna.addEventListener('change', (e) => {
+        if (!e.target.value) return;
+        if (!comunasSeleccionadas.some(i => i.comuna === e.target.value)) {
+            comunasSeleccionadas.push({ comuna: e.target.value, region: selectRegion.value });
+            renderizarTags();
+        }
+        e.target.value = "";
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (comunasSeleccionadas.length === 0) return alert("Selecciona al menos una comuna.");
+
+        const formData = new FormData(e.target);
+        formData.append('comunas_data', JSON.stringify(comunasSeleccionadas));
+
+        try {
+            const res = await fetch('http://localhost:3000/api/users/registrar-colaborador', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert("¡Postulación enviada exitosamente!");
+                location.reload();
+            } else {
+                alert(data.mensaje || "Error al enviar la postulación.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("No se pudo conectar con el servidor.");
+        }
+    });
+</script>
+</body>
+</html>

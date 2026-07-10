@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial de Constitución de Empresa</title>
+  <style>
+    :root {
+      --primary: #0070f3;
+      --success: #10b981;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 120;
+    }
+
+    .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+      white-space: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      flex-wrap: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .nav-link-ayuda {
+      color: #4b5563;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-link-ayuda:hover {
+      color: var(--primary);
+    }
+
+    .btn-logout {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    /* --- NAV DE PASOS --- */
+    .navbar-top {
+      display: none;
+    }
+
+    .navbar-steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      border: none;
+      background-color: transparent;
+    }
+
+    .navbar-steps .steps-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      width: auto;
+      max-width: none;
+    }
+
+    .step-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 0 0 auto;
+      min-width: 60px;
+      gap: 3px;
+      text-decoration: none;
+      color: var(--text);
+      padding: 6px 4px;
+      border-radius: 8px;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .step-link:hover {
+      background-color: #f8fafc;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background-color: #e2e8f0;
+      color: var(--text-muted);
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .step-link.active .step-number {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.12);
+    }
+
+    .step-link.completed .step-number {
+      background-color: var(--success);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+    }
+
+    .step-link.active .step-label,
+    .step-link.completed .step-label {
+      color: inherit;
+    }
+
+    /* --- PORTADA PRINCIPAL --- */
+    .hero-portada {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1);
+    }
+
+    .hero-portada h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-portada p {
+      margin: 10px 0 0 0;
+      font-size: 1.1rem;
+      color: #94a3b8;
+    }
+
+    .rubro-badge {
+      display: inline-block;
+      background-color: rgba(0, 112, 243, 0.2);
+      border: 1px solid var(--primary);
+      color: #60a5fa;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    /* --- CONTENIDO GENERAL --- */
+    .main-container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .content-card {
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .content-card h3 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      color: #0f172a;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .intro-text {
+      font-size: 1.05rem;
+      color: #475569;
+      margin-bottom: 25px;
+    }
+
+    /* --- CONCEPTOS CLAVE --- */
+    .concept-box {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .concept-title {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 5px;
+    }
+
+    .concept-desc {
+      font-size: 0.95rem;
+      color: #334155;
+      margin: 0;
+    }
+
+    /* --- REQUISITOS --- */
+    .requirements-list {
+      margin: 25px 0;
+      padding-left: 20px;
+    }
+
+    .requirements-list li {
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    /* --- CALL TO ACTION --- */
+    .action-zone {
+      margin-top: 35px;
+      padding: 20px;
+      background-color: #f0fdf4;
+      border: 1px dashed #bbf7d0;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .action-instruction {
+      font-size: 0.95rem;
+      color: #166534;
+      margin-bottom: 15px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .btn-chileatiende {
+      display: inline-block;
+      background-color: #e11d48;
+      color: white;
+      text-decoration: none;
+      padding: 14px 28px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-chileatiende:hover {
+      background-color: #be123c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(225, 29, 72, 0.4);
+    }
+
+    /* Nueva variación de color si el botón apunta directo al Registro oficial (Opcional) */
+    .btn-chileatiende.btn-registro-directo {
+      background-color: var(--primary);
+      box-shadow: 0 4px 10px rgba(0, 112, 243, 0.3);
+    }
+    .btn-chileatiende.btn-registro-directo:hover {
+      background-color: #0056b3;
+      box-shadow: 0 6px 15px rgba(0, 112, 243, 0.4);
+    }
+
+    .btn-subtext {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* --- NAVEGACIÓN INFERIOR --- */
+    .navigation-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    .btn-back-dash {
+      color: #475569;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .btn-back-dash:hover {
+      text-decoration: underline;
+    }
+
+    .btn-next {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 112, 243, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-next:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="dashboard.html" class="navbar-brand">TuPatente</a>
+    <div class="navbar-steps">
+      <div class="steps-container">
+        <a href="tutorial_comuna.html" class="step-link completed" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-label">Factibilidad</div>
+        </a>
+        <a href="tutorial_constitucion.html" class="step-link active" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-label">Constitución</div>
+        </a>
+        <a href="tutorial_sii.html" class="step-link" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-label">SII</div>
+        </a>
+        <a href="solicitud_patente.html" class="step-link" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-label">Patente</div>
+        </a>
+      </div>
+    </div>
+    <div class="navbar-menu">
+      <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
+      <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
+  </nav>
+
+  <header class="hero-portada">
+    <h1 id="tituloPortada">Crear tu Empresa</h1>
+    <p>Guía paso a paso adaptada a tu sector económico</p>
+    <div class="rubro-badge" id="badgeRubro">Cargando Rubro...</div>
+  </header>
+
+  <main class="main-container">
+    <div class="content-card">
+      <h3>Paso 2: Constitución en "Tu Empresa en un Día"</h3>
+      <p class="intro-text">
+        Para legalizar tu negocio en Chile utilizaremos el sistema simplificado del Ministerio de Economía. Es un trámite 100% online y gratuito. Para que no te pierdas al rellenar el formulario oficial, revisemos el significado de los datos clave que te van a pedir:
+      </p>
+
+      <div class="concept-box">
+        <div class="concept-title">1. ¿Qué nombre tendrá legalmente? (Razón Social)</div>
+        <p class="concept-desc" id="sugerenciaRazonSocial">
+          Es el nombre oficial que aparecerá en tus facturas. Como estás creando una empresa desde tu perfil individual, este nombre suele ser tu nombre de fantasía seguido de la sigla "SpA" o "EIRL".
+        </p>
+      </div>
+
+      <div class="concept-box">
+        <div class="concept-title">2. ¿A qué se dedicará tu empresa? (Objeto Social)</div>
+        <p class="concept-desc" id="sugerenciaObjetoSocial">
+          Es la actividad comercial de tu negocio. Para tu caso, el sistema sugerirá automáticamente un texto legal adaptado a tu rubro seleccionado.
+        </p>
+      </div>
+
+      <div class="concept-box">
+        <div class="concept-title">3. ¿Con cuánto dinero vas a iniciar? (Capital)</div>
+        <p class="concept-desc">
+          Es el monto con el que declaras que arranca tu negocio. Al emprender de forma individual <strong>no necesitas socios ni grandes fortunas para empezar</strong>; puedes registrar un capital inicial bajo (por ejemplo, $100.000 CLP) e indicar en el formulario que tú eres el dueño del 100% de ese dinero y que se paga en efectivo.
+        </p>
+      </div>
+
+      <div class="concept-box">
+        <div class="concept-title">4. ¿Quién toma las decisiones? (Administración Legal)</div>
+        <p class="concept-desc">
+          Dado que estás haciendo este trámite de manera individual, tú serás el <strong>Representante Legal y Administrador único</strong>. Esto significa que tienes el poder total para firmar contratos, abrir cuentas bancarias y gestionar el negocio.
+        </p>
+      </div>
+
+      <h4 style="margin-top: 25px; color: #0f172a;">¿Qué necesitas tener a mano antes de avanzar?</h4>
+      <ul class="requirements-list">
+        <li>Tu <strong>ClaveÚnica</strong> para ingresar a la plataforma.</li>
+        <li>Cédula de identidad vigente.</li>
+        <li>Tener claro el domicilio tributario (el lugar físico o virtual que configuramos en el Paso 1).</li>
+        <li>Una <strong>Firma Electrónica Avanzada (FEA)</strong>, la cual puedes comprar directamente en el sitio web al finalizar el formulario (cuesta entre $2.000 y $5.000 CLP).</li>
+      </ul>
+
+      <div class="action-zone">
+        <p class="action-instruction" id="txtInstruccionAccion">
+          📌 <strong>¡Atención!</strong> El siguiente botón te redirigirá a una <strong>guía informativa oficial en ChileAtiende</strong>. <br>
+          Una vez dentro de esa página, para iniciar el formulario real del Gobierno, deberás buscar y presionar el botón azul que dice <strong>"Constituir empresa"</strong>.
+        </p>
+        
+        <a href="https://www.chileatiende.gob.cl/fichas/21409-tu-empresa-en-un-dia" target="_blank" class="btn-chileatiende" id="btnAccionPrincipal">
+          Ir a la Guía de ChileAtiende
+        </a>
+        
+        <span class="btn-subtext">Se abrirá en una pestaña nueva para que puedas mantener esta pantalla abierta como ayuda memoria.</span>
+      </div>
+    </div>
+
+    <div class="navigation-area">
+      <a href="dashboard.html" class="btn-back-dash">Volver al Dashboard</a>
+      <a href="tutorial_sii.html" class="btn-next">Continuar</a>
+    </div>
+  </main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const resPerfil = await fetch('/api/users/perfil-actual');
+      const dataPerfil = await resPerfil.json();
+
+      if (dataPerfil.success && dataPerfil.usuario) {
+        const usuario = dataPerfil.usuario;
+        const codigoGiro = usuario.giro_empresa_codigo;
+        
+        // --- NUEVA LÓGICA DE ASIGNACIÓN DINÁMICA DE BOTÓN SEGÚN TIPO TRAMITE ---
+        const btnAccionPrincipal = document.getElementById('btnAccionPrincipal');
+        const txtInstruccionAccion = document.getElementById('txtInstruccionAccion');
+        
+        // Evaluamos si el tipo_tramite_comuna guardado en su perfil de Atlas corresponde a 1 (Pyme Ágil)
+        if (usuario.tipo_tramite_comuna === 1 || usuario.tipo_tramite_comuna === '1') {
+          // Cambiar href al registro simplificado de punta a punta directo
+          btnAccionPrincipal.href = "https://www.registrodeempresasysociedades.cl/";
+          btnAccionPrincipal.textContent = "Ir a Registro de Empresas y Sociedades";
+          btnAccionPrincipal.classList.add('btn-registro-directo'); // Agrega estilo azul para distinguir canal directo
+          
+          txtInstruccionAccion.innerHTML = `
+            🚀 <strong>¡Canal Pyme Ágil Activado!</strong> Tu comuna permite la integración completa. <br>
+            El siguiente botón te enviará directamente al **Portal Oficial del Ministerio de Economía** para que crees tu empresa sin intermediarios.
+          `;
+        } else {
+          // Si es 2 (Online / Oficina Virtual) o no está definido, se queda con la configuración por defecto (ChileAtiende)
+          btnAccionPrincipal.href = "https://www.chileatiende.gob.cl/fichas/21409-tu-empresa-en-un-dia";
+          btnAccionPrincipal.textContent = "Ir a la Guía de ChileAtiende";
+          btnAccionPrincipal.classList.remove('btn-registro-directo');
+        }
+        // ----------------------------------------------------------------------
+
+        if (codigoGiro && Number(codigoGiro) !== 0) {
+          const resGiros = await fetch(`/api/giros?search=ALL_DATA`);
+          
+          if (resGiros.ok) {
+            const listaGiros = await resGiros.json();
+            const giroEncontrado = listaGiros.find(g => parseInt(g.codigo, 10) === parseInt(codigoGiro, 10));
+
+            if (giroEncontrado) {
+              const rubroLimpio = giroEncontrado.nombre.replace(/\s*\(.*?\)\s*/g, '').trim();
+
+              document.getElementById('tituloPortada').textContent = `Crear tu Empresa de ${giroEncontrado.nombre}`;
+              document.getElementById('badgeRubro').textContent = `Rubro: [Código ${codigoGiro}] — ${giroEncontrado.nombre}`;
+              
+              document.getElementById('sugerenciaRazonSocial').innerHTML = `
+                Es el nombre oficial que aparecerá en tus facturas y documentos legales. Como tu rubro seleccionado es <strong>"${rubroLimpio}"</strong>, te sugerimos elegir un nombre de fantasía alusivo y agregar el tipo de sociedad al final. <br>
+                💡 <em>Por ejemplo: "Servicios ${rubroLimpio.split(' ')[0]} Norte SpA" o "${rubroLimpio.split(' ')[0]} Chile Limitada".</em>
+              `;
+
+              document.getElementById('sugerenciaObjetoSocial').innerHTML = `
+                Aquí debes escribir detalladamente qué actividades y servicios va a ofrecer tu negocio. Como estás en el sector de <strong>"${rubroLimpio}"</strong>, la página web de "Tu Empresa en un Día" te mostrará una lista de textos ya listos sobre este tema. Solo debes seleccionar los que coincidan con tu idea para que se agreguen automáticamente sin que tengas que redactar párrafos complejos.
+              `;
+            } else {
+              document.getElementById('tituloPortada').textContent = `Crear tu Empresa`;
+              document.getElementById('badgeRubro').textContent = `Actividad Económica: Código ${codigoGiro}`;
+            }
+          } else {
+            console.error(`Error al consultar catálogo de giros. Status: ${resGiros.status}`);
+            document.getElementById('badgeRubro').textContent = `Código de Actividad: ${codigoGiro}`;
+          }
+        } else {
+          document.getElementById('tituloPortada').textContent = `Crear tu Empresa`;
+          document.getElementById('badgeRubro').textContent = `Sin actividad comercial definida`;
+        }
+      } else {
+        window.location.href = 'index.html';
+      }
+    } catch (error) {
+      console.error('Error al inicializar la portada dinámica:', error);
+      document.getElementById('badgeRubro').textContent = 'Error al conectar con el servidor';
+    }
+  });
+
+  function cerrarSesion() {
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

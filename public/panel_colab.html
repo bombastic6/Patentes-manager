@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Colaborador | TuPatente</title>
+  <style>
+    :root {
+      --primary: #0070f3; --bg: #f4f6f9; --card-bg: #ffffff;
+      --text: #333333; --border: #e2e8f0; --success: #10b981;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; }
+    
+    .navbar { background: #fff; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .brand { font-weight: bold; color: var(--primary); font-size: 1.2rem; }
+    .nav-links a { text-decoration: none; color: var(--text); font-weight: 500; margin-left: 20px; font-size: 0.9rem; }
+
+    .main-content { padding: 30px 40px; max-width: 1200px; margin: auto; }
+    .grid-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    
+    .card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    h2 { margin-top: 0; font-size: 1.2rem; margin-bottom: 20px; color: #475569; }
+    
+    .client-item { padding: 15px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
+    .client-item:hover { border-color: var(--primary); background: #f8fafc; }
+    
+    .hidden { display: none !important; }
+    .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; background: #e2e8f0; }
+
+    /* Barras de desplazamiento */
+    .scroll-section {
+        max-height: 500px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    /* Detalles expandibles */
+    .details {
+        display: none;
+        margin-top: 10px;
+        padding: 10px;
+        background: #f1f5f9;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: default; /* Para que al clickear el detalle no colapse */
+    }
+    .btn-tomar {
+        margin-top: 10px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="brand">TuPatente - Portal Colaborador</div>
+  <div class="nav-links">
+    <span id="colabName" style="font-weight: 600;"></span>
+    <a href="#" onclick="cerrarSesion()">Cerrar Sesión</a>
+  </div>
+</nav>
+
+<div class="main-content">
+  <div id="statusSection" class="card hidden"></div>
+
+  <div id="dashboardSection" class="hidden">
+    <div style="margin-bottom: 20px;">
+      <h1>Gestión Operativa</h1>
+      <p>Clientes disponibles en tus comunas de cobertura: <strong id="zonasDisplay"></strong></p>
+    </div>
+
+    <div class="grid-panel">
+      <div class="card">
+        <h2>Clientes Disponibles en tu Zona</h2>
+        <div id="listDisponibles" class="scroll-section">Cargando...</div>
+      </div>
+
+      <div class="card">
+        <h2>Mis Clientes en Seguimiento</h2>
+        <div id="listMisClientes" class="scroll-section">Cargando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let usuarioActual = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const res = await fetch('http://localhost:3000/api/users/perfil-actual');
+    const data = await res.json();
+    if (!data.success) return window.location.href = "login_colab.html";
+    
+    usuarioActual = data.usuario;
+    document.getElementById('colabName').innerText = usuarioActual.nombre;
+
+    if (usuarioActual.estado !== 'APROBADO') {
+      renderStatus(usuarioActual.estado);
+    } else {
+      document.getElementById('dashboardSection').classList.remove('hidden');
+      document.getElementById('zonasDisplay').innerText = usuarioActual.rango_act_comuna.join(', ');
+      cargarClientes();
+    }
+  });
+
+  async function cargarClientes() {
+      try {
+          const res = await fetch('http://localhost:3000/api/users/clientes-cobertura');
+          const data = await res.json();
+          
+          const listDisp = document.getElementById('listDisponibles');
+          const listMis = document.getElementById('listMisClientes');
+
+          // --- RENDERIZAR CLIENTES DISPONIBLES ---
+          if (data.disponibles && data.disponibles.length > 0) {
+              listDisp.innerHTML = data.disponibles.map(c => `
+                  <div class="client-item" onclick="toggleDetails('disp-${c._id}')">
+                      <strong>${c.nombre}</strong><br>
+                      <small>RUT: ${c.rut} | Comuna: ${c.lugar_act.comuna}</small>
+                      
+                      <div id="details-disp-${c._id}" class="details" onclick="event.stopPropagation()">
+                          <p><strong>Edad:</strong> ${c.edad || 'N/A'}</p>
+                          <p><strong>Residencia:</strong> ${c.residencia || 'N/A'}</p>
+                          <p><strong>Dirección Actividad:</strong> ${c.lugar_act.direccion || 'N/A'}</p>
+                          <p><strong>Profesión:</strong> ${c.profesion || 'N/A'}</p>
+                          <button class="btn-tomar" onclick="tomarCliente('${c._id}')">Tomar Cliente</button>
+                      </div>
+                  </div>
+              `).join('');
+          } else {
+              listDisp.innerHTML = "<p>No hay clientes disponibles en tus zonas.</p>";
+          }
+
+          // --- RENDERIZAR MIS CLIENTES ---
+          if (data.misClientes && data.misClientes.length > 0) {
+              listMis.innerHTML = data.misClientes.map(c => `
+                  <div class="client-item" onclick="toggleDetails('mis-${c._id}')">
+                      <strong>${c.nombre}</strong><br>
+                      <small>RUT: ${c.rut} | Comuna: ${c.lugar_act.comuna}</small>
+                      
+                      <div id="details-mis-${c._id}" class="details" onclick="event.stopPropagation()">
+                          <p><strong>Edad:</strong> ${c.edad || 'N/A'}</p>
+                          <p><strong>Residencia:</strong> ${c.residencia || 'N/A'}</p>
+                          <p><strong>Dirección Actividad:</strong> ${c.lugar_act.direccion || 'N/A'}</p>
+                          <p><strong>Profesión:</strong> ${c.profesion || 'N/A'}</p>
+                          <div style="margin-top: 15px; border-top: 1px solid #cbd5e1; padding-top: 10px;">
+                              <p><strong>Progreso:</strong> ${c.pasos_completos || 0} / 4 pasos</p>
+                          </div>
+                      </div>
+                  </div>
+              `).join('');
+          } else {
+              listMis.innerHTML = "<p>Aún no tienes clientes asignados.</p>";
+          }
+      } catch (err) {
+          console.error("Error al cargar clientes:", err);
+          document.getElementById('listDisponibles').innerHTML = "Error al conectar con el servidor.";
+      }
+  }
+
+  function toggleDetails(id) {
+    const el = document.getElementById(`details-${id}`);
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+  }
+
+  async function tomarCliente(clienteId) {
+    const res = await fetch('http://localhost:3000/api/users/colab/tomar-cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clienteId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("¡Cliente asignado correctamente!");
+      cargarClientes();
+    } else {
+      alert("Error al asignar el cliente.");
+    }
+  }
+
+  function renderStatus(estado) {
+    const sect = document.getElementById('statusSection');
+    sect.classList.remove('hidden');
+    sect.innerHTML = `<h3>Tu cuenta está: ${estado}</h3><p>Por favor espera a que un administrador valide tus antecedentes.</p>`;
+  }
+
+  async function cerrarSesion() {
+    await fetch('http://localhost:3000/api/users/auth/logout');
+    window.location.href = "login_colab.html";
+  }
+</script>
+</body>
+</html>

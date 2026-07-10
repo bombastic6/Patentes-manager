@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial de Inicio de Actividades - SII</title>
+  <style>
+    :root {
+      --primary: #0070f3;
+      --success: #10b981;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 12px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 120;
+    }
+
+    .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+      white-space: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      flex-wrap: nowrap;
+      flex: 1 1 0%;
+    }
+
+    .nav-link-ayuda {
+      color: #4b5563;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .nav-link-ayuda:hover {
+      color: var(--primary);
+    }
+
+    .btn-logout {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    .navbar-steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      padding: 0;
+      border: none;
+      background-color: transparent;
+    }
+
+    .navbar-steps .steps-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      width: auto;
+      max-width: none;
+    }
+
+    .step-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 0 0 auto;
+      min-width: 60px;
+      gap: 3px;
+      text-decoration: none;
+      color: var(--text);
+      padding: 6px 4px;
+      border-radius: 8px;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .step-link:hover {
+      background-color: #f8fafc;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background-color: #e2e8f0;
+      color: var(--text-muted);
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .step-link.active .step-number {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.12);
+    }
+
+    .step-link.completed .step-number {
+      background-color: var(--success);
+      color: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+    }
+
+    /* --- PORTADA PRINCIPAL --- */
+    .hero-portada {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1);
+    }
+
+    .hero-portada h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-portada p {
+      margin: 10px 0 0 0;
+      font-size: 1.1rem;
+      color: #94a3b8;
+    }
+
+    .rubro-badge {
+      display: inline-block;
+      background-color: rgba(0, 112, 243, 0.2);
+      border: 1px solid var(--primary);
+      color: #60a5fa;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    /* --- CONTENIDO GENERAL --- */
+    .main-container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .content-card {
+      background: var(--card-bg);
+      padding: 35px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      margin-bottom: 25px;
+    }
+
+    .content-card h3 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      color: #0f172a;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .intro-text {
+      font-size: 1.05rem;
+      color: #475569;
+      margin-bottom: 25px;
+    }
+
+    /* --- CONCEPTOS CLAVE --- */
+    .concept-box {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .concept-title {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 5px;
+    }
+
+    .concept-desc {
+      font-size: 0.95rem;
+      color: #334155;
+      margin: 0;
+    }
+
+    /* --- REQUISITOS --- */
+    .requirements-list {
+      margin: 25px 0;
+      padding-left: 20px;
+    }
+
+    .requirements-list li {
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    /* --- CALL TO ACTION --- */
+    .action-zone {
+      margin-top: 35px;
+      padding: 20px;
+      background-color: #f0fdf4;
+      border: 1px dashed #bbf7d0;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .action-instruction {
+      font-size: 0.95rem;
+      color: #166534;
+      margin-bottom: 15px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .btn-chileatiende {
+      display: inline-block;
+      background-color: #ea580c; /* Naranja SII */
+      color: white;
+      text-decoration: none;
+      padding: 14px 28px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    .btn-chileatiende:hover {
+      background-color: #c2410c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(234, 88, 12, 0.4);
+    }
+
+    .btn-subtext {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    /* --- AREA DE NAVEGACIÓN INFERIOR --- */
+    .navigation-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    .btn-back-dash {
+      color: #475569;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .btn-back-dash:hover {
+      text-decoration: underline;
+    }
+
+    .btn-next {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 112, 243, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    .btn-next:hover {
+      background-color: #0056b3;
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a href="dashboard.html" class="navbar-brand">TuPatente</a>
+    <div class="navbar-steps">
+      <div class="steps-container">
+        <a href="tutorial_comuna.html" class="step-link completed" data-step="1">
+          <div class="step-number">1</div>
+          <div class="step-label">Factibilidad</div>
+        </a>
+        <a href="tutorial_constitucion.html" class="step-link completed" data-step="2">
+          <div class="step-number">2</div>
+          <div class="step-label">Constitución</div>
+        </a>
+        <a href="tutorial_sii.html" class="step-link active" data-step="3">
+          <div class="step-number">3</div>
+          <div class="step-label">SII</div>
+        </a>
+        <a href="solicitud_patente.html" class="step-link" data-step="4">
+          <div class="step-number">4</div>
+          <div class="step-label">Patente</div>
+        </a>
+      </div>
+    </div>
+    <div class="navbar-menu">
+      <span id="navbarUser" style="color: var(--text-muted); font-weight: 600; font-size: 0.95rem;">Cargando...</span>
+      <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
+      <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+    </div>
+  </nav>
+
+<header class="hero-portada">
+  <h1>Paso 3: Inicio de Actividades Tributarias</h1>
+  <p>Informa al SII la puesta en marcha de tus operaciones comerciales</p>
+  <div class="rubro-badge" id="badgeActividad">Cargando código de actividad...</div>
+</header>
+
+<main class="main-container">
+
+  <div class="content-card">
+    <h3>¿De qué se trata este paso?</h3>
+    <p class="intro-text">
+      El <strong>Inicio de Actividades</strong> ante el Servicio de Impuestos Internos (SII) es una declaración jurada obligatoria que formaliza el nacimiento comercial de tu empresa. A partir de este momento, estás legalmente habilitado para comprar, vender y emitir documentos tributarios.
+    </p>
+
+    <div class="concept-box">
+      <div class="concept-title">💡 Emisión de Documentos Electrónicos</div>
+      <p class="concept-desc">Te permite emitir Facturas y Boletas de Honorarios o Ventas afectas o exentas de IVA.</p>
+    </div>
+
+    <div class="concept-box">
+      <div class="concept-title">🔑 Habilitación para Patente Comercial</div>
+      <p class="concept-desc">Ningún municipio de Chile otorgará una patente comercial definitiva si la empresa no registra un Inicio de Actividades vigente.</p>
+    </div>
+
+    <h3 style="margin-top: 35px;">Requisitos indispensables antes de ingresar</h3>
+    <p>Asegúrate de tener a mano los siguientes datos para evitar el rechazo de la solicitud:</p>
+    
+    <ul class="requirements-list">
+      <li><strong>Clave Tributaria del SII</strong> o <strong>ClaveÚnica</strong> del representante legal de la empresa.</li>
+      <li><strong>RUT definitivo de la empresa</strong> (obtenido tras el paso de Constitución legal).</li>
+      <li><strong>Acreditación de Domicilio:</strong> Contrato de arriendo digital, autorización de uso notarial o contrato vigente con una oficina virtual.</li>
+      <li><strong>Códigos de Actividad (Giros):</strong> Los mismos números SII seleccionados previamente que determinan el rubro exacto de tu negocio.</li>
+    </ul>
+
+    <div class="action-zone" id="contenedorAccionSII">
+      <div class="action-instruction" id="txtInstruccionSII">
+        Serás redirigido a la sección oficial transaccional del SII.<br>
+        Inicia sesión, rellena los datos de tu domicilio, ingresa tu giro comercial y adjunta tu acreditación de dirección.
+      </div>
+      <a href="https://www.sii.cl/servicios_online/1031-.html" target="_blank" class="btn-chileatiende" id="btnSii">
+        Iniciar Trámite en SII.cl ↗
+      </a>
+      <span class="btn-subtext" id="subtextSii">El trámite es completamente gratuito y se procesa de forma inmediata.</span>
+    </div>
+  </div>
+
+  <div class="navigation-area">
+    <a href="dashboard.html" class="btn-back-dash">Volver al Dashboard</a>
+    <a href="solicitud_patente.html" class="btn-next">Continuar</a>
+  </div>
+
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      // Se eliminó el prefijo 'http://localhost:3000' para usar rutas relativas seguras
+      const response = await fetch('/api/users/perfil-actual');
+      const resultado = await response.json();
+
+      if (response.ok && resultado.success && resultado.usuario) {
+        const u = resultado.usuario;
+
+        // Renderizar nombre de usuario
+        if (u.nombre) {
+          document.getElementById('navbarUser').textContent = `Hola, ${u.nombre}`;
+        } else {
+          document.getElementById('navbarUser').textContent = 'Sesión Activa';
+        }
+
+        // Cargar código de giro
+        const codigoGiro = u.giro_empresa_codigo;
+        if (codigoGiro && codigoGiro > 0) {
+          document.getElementById('badgeActividad').textContent = `Código SII Asignado: ${codigoGiro}`;
+        } else {
+          document.getElementById('badgeActividad').textContent = 'Código de Actividad pendiente';
+        }
+
+        // --- EVALUACIÓN PRIORITARIA DE TIPO_TRAMITE_COMUNA (PYME ÁGIL) ---
+        if (u.tipo_tramite_comuna === 1 || u.tipo_tramite_comuna === '1') {
+          const btnSii = document.getElementById('btnSii');
+          const txtInstruccion = document.getElementById('txtInstruccionSII');
+          const subtextSii = document.getElementById('subtextSii');
+
+          // Redirigir al portal general de RES donde Pyme Ágil maneja todo de forma empaquetada
+          btnSii.href = "https://www.registrodeempresasysociedades.cl/";
+          btnSii.innerHTML = "Ir al Registro de Empresas y Sociedades ↗";
+          btnSii.style.backgroundColor = "#0070f3"; // Color primario para romper el naranja clásico
+          btnSii.style.boxShadow = "0 4px 10px rgba(0, 112, 243, 0.3)";
+
+          txtInstruccion.innerHTML = `
+            ⚡ <strong>¡Paso Simplificado mediante Pyme Ágil!</strong><br>
+            Detectamos que tu comuna permite la tramitación integrada. No necesitas hacer este proceso de forma separada en la web tradicional del SII.<br>
+            El Inicio de Actividades se gatilla y aprueba automáticamente junto con tu patente desde la ventanilla única.
+          `;
+          subtextSii.innerHTML = "Puedes continuar directo al Paso 4 si ya configuraste tu flujo integrado.";
+        }
+
+      } else {
+        document.getElementById('badgeActividad').textContent = 'Guía de Trámite Tributario';
+        document.getElementById('navbarUser').textContent = 'Invitado';
+      }
+    } catch (error) {
+      console.error('Error al mapear la información del SII:', error);
+      document.getElementById('badgeActividad').textContent = 'Inicio de Actividades';
+      document.getElementById('navbarUser').textContent = 'Error de Sesión';
+    }
+  });
+
+  function cerrarSesion() {
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

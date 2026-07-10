@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistente de Diagnóstico - Patentes</title>
+  <style>
+    :root {
+      --primary: #0070f3;
+      --success: #10b981;
+      --bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text: #333333;
+      --border: #cccccc;
+      --danger: #ef4444;
+      --info-bg: #eff6ff;
+      --info-border: #bfdbfe;
+      --info-text: #1e40af;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* --- NAVBAR --- */
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .navbar-menu {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-link-ayuda {
+      color: #4b5563;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    .nav-link-ayuda:hover {
+      color: var(--primary);
+    }
+    .btn-logout {
+      background-color: var(--danger);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: background-color 0.2s;
+    }
+    .btn-logout:hover {
+      background-color: #dc2626;
+    }
+
+    /* --- CONTENIDO PRINCIPAL --- */
+    .main-wrapper {
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #111;
+    }
+
+    /* --- BARRA DE PROGRESO --- */
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    .progress-bar::before {
+      content: ""; position: absolute; top: 15px; left: 0; right: 0; height: 3px; background-color: var(--border); z-index: 1;
+    }
+    .step {
+      width: 35px; height: 35px; background-color: var(--border); color: white; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2;
+    }
+    .step.active { background-color: var(--primary); }
+    .step.completed { background-color: var(--success); }
+
+    .form-group { margin-bottom: 20px; position: relative; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+
+    .input-error {
+      border-color: var(--danger) !important;
+      background-color: #fff5f5;
+    }
+    .error-message {
+      color: var(--danger);
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .hint-box {
+      background-color: var(--info-bg);
+      border: 1px solid var(--info-border);
+      color: var(--info-text);
+      padding: 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .autocomplete-wrapper { position: relative; }
+    .autocomplete-suggestions {
+      position: absolute; top: 100%; left: 0; right: 0; background: white;
+      border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px;
+      max-height: 200px; overflow-y: auto; z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .suggestion-item { padding: 10px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
+    .suggestion-item:last-child { border-bottom: none; }
+    .suggestion-item:hover { background-color: #f0f7ff; color: var(--primary); }
+
+    .patente-display-box { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 12px; }
+    .patente-value-text { font-size: 1.05rem; font-weight: bold; color: #0f172a; margin-top: 4px; }
+    .patente-select-secundaria { margin-top: 8px; background-color: #ffffff; }
+
+    .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+    button.btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 6px; cursor: pointer; border: none; }
+    button.next-btn { background-color: var(--primary); color: white; }
+    button.back-btn { background-color: #e2e8f0; color: #333; }
+      
+    .user-badge { background-color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; text-align: right; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="#" class="navbar-brand">TuPatente</a>
+  <div class="navbar-menu">
+    <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
+    <button class="btn-logout" onclick="cerrarSesion()">Cerrar Sesión</button>
+  </div>
+</nav>
+
+<div class="main-wrapper">
+  <div class="container">
+    <div class="user-badge" id="userBadge">Identidad: Verificando sesión...</div>
+
+    <h2>Asistente de Diagnóstico Comercial</h2>
+    <p style="text-align: center; color: #666; font-size: 0.9rem; margin-bottom: 25px;">Responde estas preguntas para determinar el estado de tu proceso.</p>
+
+    <div class="progress-bar">
+      <div class="step active" id="step1-indicator">1</div>
+      <div class="step" id="step2-indicator">2</div>
+      <div class="step" id="step3-indicator">3</div>
+      <div class="step" id="step4-indicator">4</div>
+    </div>
+
+    <form id="diagnosticoForm" onsubmit="event.preventDefault(); return false;">
+      
+      <div id="etapa1">
+        <h3>Paso 1: Lugar de Actividad</h3>
+        <div class="form-group">
+          <label for="selectRegion">Región donde operará tu negocio</label>
+          <select id="selectRegion" required onchange="cargarComunasDesdeBackend()">
+            <option value="" disabled selected>Seleccione una región...</option>
+            <option value="Valparaíso">Región de Valparaíso</option>
+            <option value="Metropolitana">Región Metropolitana</option>
+          </select>
+          <div class="error-message" id="error-selectRegion">Este campo es obligatorio. Selecciona una región.</div>
+        </div>
+        <div class="form-group">
+          <label for="selectComuna">Comuna donde harás el trámite</label>
+          <select id="selectComuna" required disabled onchange="actualizarComunaSeleccionada(this.value)">
+            <option value="" disabled selected>Seleccione primero una región...</option>
+          </select>
+          <div class="error-message" id="error-selectComuna">Este campo es obligatorio. Selecciona una comuna.</div>
+        </div>
+        <div class="btn-container">
+          <button type="button" class="btn next-btn" onclick="irAlPaso(2)">Siguiente Paso</button>
+        </div>
+      </div>
+      
+      <div id="etapa2" style="display: none;">
+        <h3>Paso 2: Constitución Legal y Actividad</h3>
+        
+        <div class="form-group">
+          <label for="formoEmpresa">¿Registraste o creaste tu empresa legalmente?</label>
+          <select id="formoEmpresa" required onchange="evaluarEstadoConstitucion()">
+            <option value="" disabled selected>Selecciona una opción...</option>
+            <option value="1">No, quiero trabajar a mi propio nombre (Persona Natural)</option>
+            <option value="2">Sí, ya la creé por internet ("Tu Empresa en un Día" / Registro de Empresas)</option>
+            <option value="3">Sí, por el método tradicional (Escritura Pública, Notaría y Abogado)</option>
+            <option value="4">No, aún estoy en proceso o sólo informándome</option>
+          </select>
+          <div class="error-message" id="error-formoEmpresa">Este campo es obligatorio. Selecciona una opción legal.</div>
+        </div>
+
+        <div class="form-group" style="margin-top: 25px;">
+          <label for="giroBuscar">¿A qué se dedicará tu negocio? (Busca la actividad principal)</label>
+          <div class="autocomplete-wrapper">
+            <input type="text" id="giroBuscar" autocomplete="off" placeholder="Ej: minimarket, abarrotes, vestuario, asesorías..." required>
+            <div id="autocomplete-results" class="autocomplete-suggestions" style="display: none;"></div>
+          </div>
+          <input type="hidden" id="giroCodigoSII" required>
+          <div class="error-message" id="error-giroBuscar">Debes buscar y elegir obligatoriamente una actividad de la lista.</div>
+          
+          <div id="hintPaso3" class="hint-box" style="display: none;">
+            <div>💡 <strong>Pista de Simulación:</strong> Escribe lo que tienes pensado hacer en el futuro. Esto nos servirá para proyectar qué patentes te exigirá el municipio.</div>
+          </div>
+        </div>
+
+        <div class="btn-container">
+          <button type="button" class="btn back-btn" onclick="irAlPaso(1)">Atrás</button>
+          <button type="button" class="btn next-btn" onclick="irAlPaso(3)">Siguiente Paso</button>
+        </div>
+      </div>
+
+      <div id="etapa3" style="display: none;">
+        <h3>Paso 3: Situación ante Impuestos Internos (SII)</h3>
+        <div class="form-group">
+          <label for="inicioActividades">¿Ya realizaste el Inicio de Actividades en el SII?</label>
+          <select id="inicioActividades" required>
+            <option value="" disabled selected>Selecciona una opción...</option>
+            <option value="2">Sí, vendo productos físicos o mercancías (Almacén, ropa, comida, etc.)</option>
+            <option value="3">Sí, ofrezco servicios profesionales o asesorías (Consultorías, software, educación, etc.)</option>
+            <option value="1">No, aún no registro el negocio ante el SII</option>
+          </select>
+          <div class="error-message" id="error-inicioActividades">Este campo es obligatorio. Selecciona tu estado en el SII.</div>
+
+          <div id="hintPaso4" class="hint-box" style="display: none;">
+            <div>💡 <strong>Pista de Simulación:</strong> Como estás en proceso, lo ideal es simular tu escenario futuro.</div>
+          </div>
+        </div>
+        <div class="btn-container">
+          <button type="button" class="btn back-btn" onclick="irAlPaso(2)">Atrás</button>
+          <button type="button" class="btn next-btn" onclick="irAlPaso(4)">Siguiente Paso</button>
+        </div>
+      </div>
+
+      <div id="etapa4" style="display: none;">
+        <h3>Paso 4: Requerimiento de Patente</h3>
+        <div class="form-group">
+          <label>Patentes Municipales calculadas para tu modelo de negocio:</label>
+          
+          <div class="patente-display-box">
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: bold;">PATENTE PRIMARIA (REQUISITO BASE AUTOMÁTICO):</span>
+            <div class="patente-value-text" id="txtPatentePrimaria">Calculando...</div>
+            <input type="hidden" id="patentePrimariaHidden" name="patente_primaria">
+          </div>
+
+          <div class="patente-display-box" id="boxPatenteSecundaria">
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: bold;">PATENTE SECUNDARIA (ADICIONAL / INFRAESTRUCTURA):</span>
+            <select id="selectPatenteSecundaria" class="patente-select-secundaria" onchange="cambiarPatenteSecundaria()">
+              <option value="">Ninguna (No requiero patente adicional)</option>
+              <option value="Comercial">Patente Comercial (Para venta directa al público)</option>
+              <option value="Alcoholes">Patente de Alcoholes</option>
+              <option value="Industrial">Patente Industrial</option>
+              <option value="Profesional">Patente Profesional</option>
+              <option value="Microempresa Familiar">Microempresa Familiar</option>
+            </select>
+            <input type="hidden" id="patenteSecundariaHidden" name="patente_secundaria" value="">
+          </div>
+        </div>
+        
+        <div class="btn-container">
+          <button type="button" class="btn back-btn" onclick="irAlPaso(3)">Atrás</button>
+          <button type="submit" class="btn next-btn" style="background-color: var(--success);">Finalizar Diagnóstico</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  window.patentePrimariaSugerida = "Comercial";
+
+  let userEmail = "";
+  let userName = "";
+  let pasoActual = 1;
+  let totalPasosActivos = 4; 
+  let todosLosGiros = []; 
+  
+  // VARIABLES DE CONTROL LOCAL PARA COMUNAS
+  let comunasCargadas = [];
+  let comunaSeleccionadaValor = ""; // Almacena el nombre de la comuna seleccionada
+  let tipoTramiteComunaValor = 0;   // Almacena el código numérico (0, 1 o 2)
+
+  // 1. VERIFICACIÓN DE SESIÓN ACTUALIZADA CON CREDENTIALS
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/users/perfil-actual', {
+        method: 'GET',
+        credentials: 'include' // 👈 Crucial para que Passport lea la sesión activa
+      });
+      const data = await response.json();
+
+      if (data.success && data.usuario) {
+        userEmail = data.usuario.correo;
+        userName = data.usuario.nombre || 'Usuario Local';
+        document.getElementById('userBadge').textContent = `Usuario: ${userName} (${userEmail})`;
+        
+        actualizarCamposPatente();
+        cargarCatalogoCompleto();
+      } else {
+        alert('Acceso denegado. Por favor, inicie sesión.');
+        window.location.href = 'index.html';
+      }
+    } catch (error) {
+      console.error('Error al verificar sesión actual:', error);
+      alert('Error de conexión con el servidor.');
+      window.location.href = 'index.html';
+    }
+  });
+
+  async function cargarComunasDesdeBackend() {
+    const regionSeleccionada = document.getElementById('selectRegion').value;
+    const selectComuna = document.getElementById('selectComuna');
+    
+    limpiarError('selectRegion');
+    selectComuna.innerHTML = '<option value="" disabled selected>Cargando comunas...</option>';
+    selectComuna.disabled = true;
+    
+    comunaSeleccionadaValor = "";
+    tipoTramiteComunaValor = 0; 
+
+    if (!regionSeleccionada) return;
+
+    try {
+      const response = await fetch('http://localhost:3000/api/comunas');
+      const data = await response.json();
+
+      if (data.success && data.comunas) {
+        selectComuna.innerHTML = '<option value="" disabled selected>Seleccione una comuna...</option>';
+        
+        comunasCargadas = data.comunas.filter(c => c.region === regionSeleccionada);
+
+        if (comunasCargadas.length === 0) {
+          selectComuna.innerHTML = '<option value="" disabled selected>No hay comunas para esta región</option>';
+          return;
+        }
+
+        comunasCargadas.forEach(comuna => {
+          const opt = document.createElement('option');
+          opt.value = comuna.nombre;
+          opt.textContent = comuna.nombre;
+          selectComuna.appendChild(opt);
+        });
+        
+        selectComuna.disabled = false;
+      } else {
+        alert('Error al cargar la lista de comunas desde el servidor.');
+      }
+    } catch (error) {
+      console.error('Error de red al traer las comunas:', error);
+      alert('No se pudo conectar al servidor para obtener las comunas.');
+    }
+  }
+
+  function actualizarComunaSeleccionada(nombreComuna) {
+    limpiarError('selectComuna');
+    comunaSeleccionadaValor = nombreComuna;
+    
+    if (!nombreComuna) {
+      tipoTramiteComunaValor = 0;
+      return;
+    }
+
+    const comunaObjeto = comunasCargadas.find(c => 
+      c.nombre.trim().toLowerCase() === nombreComuna.trim().toLowerCase()
+    );
+    
+    console.log("Comuna encontrada en caché:", comunaObjeto);
+
+    if (comunaObjeto) {
+      const esOnline = comunaObjeto.oficina_virtual_permitida === true;
+      const esPymeAgil = comunaObjeto.compatible_pyme_agil === true;
+
+      if (esPymeAgil) {
+        tipoTramiteComunaValor = 1;
+      } else if (esOnline) {
+        tipoTramiteComunaValor = 2;
+      } else {
+        tipoTramiteComunaValor = 0;
+      }
+    } else {
+      tipoTramiteComunaValor = 0;
+    }
+    
+    console.log(`[FRONTEND] Comuna: ${comunaSeleccionadaValor} | Tipo Trámite Asignado: ${tipoTramiteComunaValor}`);
+  }
+
+  function cerrarSesion() {
+    alert('Sesión cerrada correctamente.');
+    window.location.href = 'index.html';
+  }
+
+  function evaluarEstadoConstitucion() {
+    const estado = document.getElementById('formoEmpresa').value;
+    const hintPaso3 = document.getElementById('hintPaso3');
+    const hintPaso4 = document.getElementById('hintPaso4');
+    limpiarError('formoEmpresa');
+
+    if (estado === "4") { 
+      hintPaso3.style.display = 'flex';
+      hintPaso4.style.display = 'flex';
+    } else {
+      hintPaso3.style.display = 'none';
+      hintPaso4.style.display = 'none';
+    }
+  }
+
+  function mostrarError(idCampo) {
+    const campo = document.getElementById(idCampo);
+    const mensaje = document.getElementById(`error-${idCampo}`);
+    campo.classList.add('input-error');
+    if (mensaje) mensaje.style.display = 'block';
+  }
+
+  function limpiarError(idCampo) {
+    const campo = document.getElementById(idCampo);
+    const mensaje = document.getElementById(`error-${idCampo}`);
+    if (campo) campo.classList.remove('input-error');
+    if (mensaje) mensaje.style.display = 'none';
+  }
+
+  function irAlPaso(pasoDestino) {
+    if (pasoDestino > pasoActual) {
+      let valido = true;
+
+      if (pasoActual === 1) {
+        const reg = document.getElementById('selectRegion');
+        const com = document.getElementById('selectComuna');
+        if (!reg.value) { mostrarError('selectRegion'); valido = false; }
+        if (!com.value) { mostrarError('selectComuna'); valido = false; }
+      }
+      
+      if (pasoActual === 2) {
+        const constLegal = document.getElementById('formoEmpresa');
+        const giroInput = document.getElementById('giroBuscar');
+        const giroCod = document.getElementById('giroCodigoSII');
+        if (!constLegal.value) { mostrarError('formoEmpresa'); valido = false; }
+        if (!giroInput.value || !giroCod.value) { mostrarError('giroBuscar'); valido = false; }
+      }
+      
+      if (pasoActual === 3) {
+        const sSII = document.getElementById('inicioActividades');
+        if (!sSII.value) { mostrarError('inicioActividades'); valido = false; }
+      }
+
+      if (!valido) return;
+    }
+
+    pasoActual = pasoDestino;
+
+    for (let i = 1; i <= totalPasosActivos; i++) {
+      document.getElementById(`etapa${i}`).style.display = 'none';
+      document.getElementById(`step${i}-indicator`).className = 'step';
+    }
+
+    document.getElementById(`etapa${pasoDestino}`).style.display = 'block';
+    
+    for (let i = 1; i <= totalPasosActivos; i++) {
+      const indicator = document.getElementById(`step${i}-indicator`);
+      if (i < pasoDestino) {
+        indicator.className = 'step completed';
+      } else if (i === pasoDestino) {
+        indicator.className = 'step active';
+      }
+    }
+  }
+
+  async function cargarCatalogoCompleto() {
+    try {
+      const response = await fetch('http://localhost:3000/api/giros/giros?search=ALL_DATA');
+      if (!response.ok) throw new Error('No se pudo cargar el catálogo base');
+      todosLosGiros = await response.json();
+    } catch (error) {
+      console.error('Error al precargar catálogo de giros:', error);
+    }
+  }
+
+  const giroBuscarInput = document.getElementById('giroBuscar');
+  const autocompleteResults = document.getElementById('autocomplete-results');
+  const giroCodigoSIIInput = document.getElementById('giroCodigoSII');
+
+  giroBuscarInput.addEventListener('focus', () => {
+    limpiarError('giroBuscar');
+    filtrarYMostrarGiros(giroBuscarInput.value.trim());
+  });
+  
+  giroBuscarInput.addEventListener('input', () => {
+    giroCodigoSIIInput.value = ""; 
+    filtrarYMostrarGiros(giroBuscarInput.value.trim());
+  });
+
+  function filtrarYMostrarGiros(busqueda) {
+    const girosFiltrados = todosLosGiros.filter(giro => {
+      if (!busqueda) return true;
+      const termino = busqueda.toLowerCase();
+      return giro.nombre.toLowerCase().includes(termino) || giro.codigo.toString().includes(termino);
+    });
+    renderSugerencias(girosFiltrados);
+  }
+
+  function renderSugerencias(giros) {
+    autocompleteResults.innerHTML = '';
+    if (giros.length === 0) {
+      autocompleteResults.innerHTML = '<div class="suggestion-item" style="color: #999;">No se encontraron modificaciones</div>';
+      autocompleteResults.style.display = 'block';
+      return;
+    }
+    giros.forEach(giro => {
+      const item = document.createElement('div');
+      item.className = 'suggestion-item';
+      item.textContent = giro.nombre;
+      item.addEventListener('click', () => {
+        giroBuscarInput.value = giro.nombre;
+        giroCodigoSIIInput.value = giro.codigo;
+        limpiarError('giroBuscar');
+        autocompleteResults.style.display = 'none';
+        
+        window.patentePrimariaSugerida = giro.tipo_patente_sugerida || "Comercial";
+        actualizarCamposPatente();
+      });
+      autocompleteResults.appendChild(item);
+    });
+    autocompleteResults.style.display = 'block';
+  }
+
+  function actualizarCamposPatente() {
+    document.getElementById('txtPatentePrimaria').textContent = window.patentePrimariaSugerida;
+    const inputPrimaria = document.getElementById('patentePrimariaHidden');
+    if (inputPrimaria) inputPrimaria.value = window.patentePrimariaSugerida;
+    
+    const selectSecundario = document.getElementById('selectPatenteSecundaria');
+    if (!selectSecundario) return;
+    const opciones = selectSecundario.options;
+    
+    if (selectSecundario.value === window.patentePrimariaSugerida) {
+      selectSecundario.value = "";
+      document.getElementById('patenteSecundariaHidden').value = "";
+    }
+    for (let i = 0; i < opciones.length; i++) {
+      opciones[i].disabled = (opciones[i].value === window.patentePrimariaSugerida);
+    }
+  }
+
+  function cambiarPatenteSecundaria() {
+    const select = document.getElementById('selectPatenteSecundaria');
+    document.getElementById('patenteSecundariaHidden').value = select.value;
+  }
+
+  // Se eliminó la duplicación innecesaria de este listener
+  document.addEventListener('click', (e) => {
+    if (!giroBuscarInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+      autocompleteResults.style.display = 'none';
+    }
+  });
+
+  // =========================================================================
+  // ENVÍO DE FORMULARIO CORREGIDO (MÉTODO POST + CREDENTIALS)
+  // =========================================================================
+  document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const payload = {
+      nombre: userName,
+      correo: userEmail,
+      region_tramite: document.getElementById('selectRegion').value,
+      comuna_tramite: comunaSeleccionadaValor, 
+      tipo_tramite_comuna: tipoTramiteComunaValor, 
+      constitucion_legal: document.getElementById('formoEmpresa').value,
+      giro_empresa_codigo: document.getElementById('giroCodigoSII').value,
+      situacion_sii: document.getElementById('inicioActividades').value,
+      patente_primaria: document.getElementById('patentePrimariaHidden').value,
+      patente_secundaria: document.getElementById('patenteSecundariaHidden').value
+    };
+
+    console.log("[FRONTEND] Enviando actualización al backend:", payload);
+
+    try {
+      // Cambiado a POST para alinearse con router.post('/crear_invitado')
+      const response = await fetch('http://localhost:3000/api/users/crear_invitado', {
+        method: 'POST', 
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include', // 👈 Obligatorio para vincular la sesión del Invitado
+        body: JSON.stringify(payload)
+      });
+
+      const resultado = await response.json();
+      console.log("Respuesta obtenida del servidor:", resultado);
+
+      if (response.ok && resultado.success) {
+        alert('¡Diagnóstico guardado y sincronizado con éxito!');
+        window.location.href = 'dashboard.html'; 
+      } else {
+        alert('Error en el servidor: ' + (resultado.mensaje || 'No se pudieron guardar los cambios.'));
+      }
+    } catch (error) {
+      console.error('Error crítico de red:', error);
+      alert('Error: No se pudo conectar con el servidor para actualizar tus datos.');
+    }
+  });
+</script>
+</body>
+</html>

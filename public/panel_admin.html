@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración Profesional</title>
+  <style>
+    /* Estilos base del Dashboard (Navbar) */
+    body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; padding: 0; margin: 0; }
+    
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar-brand { font-size: 1.4rem; font-weight: bold; color: #0070f3; text-decoration: none; }
+    .navbar-menu { display: flex; align-items: center; gap: 20px; }
+    .btn-logout { background-color: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+    /* Estilos del Panel */
+    .container-admin { padding: 20px; }
+    .filter-container { background: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; max-width: 700px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .row { display: flex; gap: 15px; }
+    .form-group { flex: 1; }
+    label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; }
+    select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #cbd5e1; border-radius: 6px; font-weight: bold; }
+    .tab-btn.active { background: #2563eb; color: white; }
+    .section-content { display: none; }
+    .section-content.active { display: block; }
+
+    .grid { display: flex; gap: 20px; overflow-x: auto; padding: 10px 0 20px 0; min-height: 250px; align-items: flex-start; }
+    .card { background: white; border-radius: 10px; padding: 20px; min-width: 320px; max-width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #cbd5e1; }
+    .border-PENDIENTE { border-left-color: #f59e0b; }
+    .border-APROBADO { border-left-color: #10b981; }
+    
+    .base-info { cursor: pointer; padding-bottom: 10px; }
+    .details { display: none; margin-top: 10px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.85rem; }
+    .badge { background: #64748b; color: white; padding: 2px 12px; border-radius: 15px; font-size: 0.8rem; }
+    .btn-action { margin: 5px 0; width: 100%; padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; text-decoration: none; display: block; text-align: center; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="#" class="navbar-brand">TuPatente (Admin)</a>
+  <div class="navbar-menu">
+    <button class="btn-logout" onclick="window.location.href='login_colab.html'">Cerrar Sesión</button>
+  </div>
+</nav>
+
+<div class="container-admin">
+  <h1>Panel de Administración</h1>
+
+  <div id="filterSection" class="filter-container">
+    <div class="row">
+      <div class="form-group">
+        <label>Región</label>
+        <select id="filterRegion" onchange="actualizarComunas()">
+          <option value="">Todas las regiones</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Comuna</label>
+        <select id="filterComuna" disabled onchange="renderizar()">
+          <option value="">Todas las comunas</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showSection('colabs')">Colaboradores</button>
+    <button class="tab-btn" onclick="showSection('clientes')">Clientes</button>
+  </div>
+
+  <div id="colabs" class="section-content active">
+    <h3>Pendientes <span id="countPend" class="badge">0</span></h3>
+    <div id="gridPend" class="grid"></div>
+    <h3>Aprobados <span id="countApr" class="badge">0</span></h3>
+    <div id="gridApr" class="grid"></div>
+  </div>
+
+  <div id="clientes" class="section-content">
+    <h3>Clientes Registrados <span id="countCli" class="badge">0</span></h3>
+    <div id="gridClientes" class="grid"></div>
+  </div>
+</div>
+
+<script>
+  let TODOS_COLABS = [], DATA_TERRITORIAL = {}, TODOS_CLIENTES = [];
+
+  function showSection(id) {
+    document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    document.getElementById('filterSection').style.display = (id === 'colabs') ? 'block' : 'none';
+  }
+
+  async function cargarTodo() {
+    const [resT, resColab, resCli] = await Promise.all([
+      fetch('http://localhost:3000/api/comunas/regiones-y-comunas').then(r=>r.json()),
+      fetch('http://localhost:3000/api/users/admin/colaboradores-todos').then(r=>r.json()),
+      fetch('http://localhost:3000/api/users/admin/clientes-todos').then(r=>r.json())
+    ]);
+    DATA_TERRITORIAL = resT.data;
+    TODOS_COLABS = resColab.colaboradores;
+    TODOS_CLIENTES = resCli.clientes;
+    const regSelect = document.getElementById('filterRegion');
+    Object.keys(DATA_TERRITORIAL).forEach(r => regSelect.innerHTML += `<option value="${r}">${r}</option>`);
+    renderizar();
+  }
+
+  function actualizarComunas() {
+    const reg = document.getElementById('filterRegion').value;
+    const selCom = document.getElementById('filterComuna');
+    selCom.innerHTML = '<option value="">Todas</option>';
+    if (reg && DATA_TERRITORIAL[reg]) {
+      selCom.disabled = false;
+      DATA_TERRITORIAL[reg].forEach(c => selCom.innerHTML += `<option value="${c.toLowerCase()}">${c}</option>`);
+    } else { selCom.disabled = true; }
+    renderizar();
+  }
+
+  function renderizar() {
+    const regVal = document.getElementById('filterRegion').value;
+    const comVal = document.getElementById('filterComuna').value;
+    const filtrados = TODOS_COLABS.filter(c => {
+      const matchReg = regVal === "" || (c.rango_act_region && c.rango_act_region.some(r => r.toLowerCase() === regVal.toLowerCase()));
+      const matchCom = comVal === "" || (c.rango_act_comuna && c.rango_act_comuna.some(c => c.toLowerCase() === comVal.toLowerCase()));
+      return matchReg && matchCom;
+    });
+
+    const gridPend = document.getElementById('gridPend'), gridApr = document.getElementById('gridApr');
+    gridPend.innerHTML = ''; gridApr.innerHTML = '';
+    
+    pends = filtrados.filter(c => c.estado === 'PENDIENTE');
+    aprs = filtrados.filter(c => c.estado === 'APROBADO');
+
+    document.getElementById('countPend').innerText = pends.length;
+    document.getElementById('countApr').innerText = aprs.length;
+
+    pends.forEach(c => {
+      gridPend.innerHTML += `
+        <div class="card border-PENDIENTE">
+          <div class="base-info" onclick="toggle('${c._id}')"><strong>${c.nombre}</strong><br><small>${c.correo}</small></div>
+          <div id="det-${c._id}" class="details" style="display:block;">
+            <p><strong>RUT:</strong> ${c.rut}</p>
+            <p><strong>Regiones:</strong> ${c.rango_act_region.join(', ') || 'N/A'}</p>
+            <p><strong>Comunas:</strong> ${c.rango_act_comuna.join(', ') || 'N/A'}</p>
+            <a href="http://localhost:3000/api/users/admin/documento/${c.antecedentes}" target="_blank" class="btn-action" style="background:#6366f1;">Ver PDF Antecedentes</a>
+            <button class="btn-action" style="background:#10b981;" onclick="gestionar('${c._id}', 'APROBADO')">Aprobar</button>
+            <button class="btn-action" style="background:#ef4444;" onclick="gestionar('${c._id}', 'RECHAZADO')">Rechazar</button>
+          </div>
+        </div>`;
+    });
+
+    aprs.forEach(c => {
+      gridApr.innerHTML += `
+        <div class="card border-APROBADO">
+          <div class="base-info" onclick="toggle('${c._id}')"><strong>${c.nombre}</strong><br><small>${c.correo}</small></div>
+          <div id="det-${c._id}" class="details">
+            <p><strong>RUT:</strong> ${c.rut}</p>
+            <p><strong>Regiones:</strong> ${c.rango_act_region.join(', ') || 'N/A'}</p>
+            <p><strong>Comunas:</strong> ${c.rango_act_comuna.join(', ') || 'N/A'}</p>
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('countCli').innerText = TODOS_CLIENTES.length;
+    gridClientes.innerHTML = TODOS_CLIENTES.map(cli => `
+      <div class="card" style="border-left-color:#8b5cf6;">
+        <div class="base-info" onclick="toggle('${cli._id}')"><strong>${cli.nombre}</strong><br><small>${cli.correo}</small></div>
+        <div id="det-${cli._id}" class="details">
+           <p><strong>Región:</strong> ${cli.lugar_act?.region || 'N/A'}</p>
+           <p><strong>Comuna:</strong> ${cli.lugar_act?.comuna || 'N/A'}</p>
+           <p><strong>Colab Asignado:</strong> ${cli.colab_assigned?.nombre || 'Ninguno'}</p>
+           <p><strong>Firma Apoderado:</strong> ${cli.firma_apoderado ? '✅ Sí' : '❌ No'}</p>
+           <p><strong>Doc. Apoderado:</strong> ${cli.documento_apoderado ? 'Adjunto' : 'No'}</p>
+           <p><strong>Trámite Completo:</strong> ${cli.tramite_completo ? '✅ Sí' : '❌ No'}</p>
+           <p><strong>Pasos Completos:</strong> ${cli.pasos_completos || 0}</p>
+           <p><strong>ID:</strong> ${cli._id.slice(-6)}</p>
+        </div>
+      </div>`).join('');
+  }
+
+  function toggle(id) { 
+    const el = document.getElementById('det-'+id); 
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block'; 
+  }
+  
+  async function gestionar(id, estado) {
+    if(!confirm("¿Confirmar acción?")) return;
+    await fetch('http://localhost:3000/api/users/admin/cambiar-estado', { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify({id, estado}) 
+    });
+    cargarTodo();
+  }
+  cargarTodo();
+</script>
+</body>
+</html>
