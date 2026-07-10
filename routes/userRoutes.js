@@ -64,7 +64,9 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
   }
 };
 
-passport.use(new GoogleStrategy({
+passport.use
+console.log("Debug - ClientID:", process.env.GOOGLE_CLIENT_ID ? "Cargado" : "NO CARGADO");
+console.log("Debug - ClientSecret:", process.env.GOOGLE_CLIENT_SECRET ? "Cargado" : "NO CARGADO");(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET, // Asegúrate de que coincida con el nombre en Render
     callbackURL: "https://tupatente-backend.onrender.com/api/users/auth/google/callback"
