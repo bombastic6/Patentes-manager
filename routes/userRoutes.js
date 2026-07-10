@@ -66,7 +66,7 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET, // Asegúrate de que coincida con el nombre en Render
     callbackURL: "https://tupatente-backend.onrender.com/api/users/auth/google/callback"
   },
   googleVerify
