@@ -1,3 +1,4 @@
+import 'dotenv/config'; // Esta línea debe ser la primera de todo el archivo
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors'; 
@@ -6,6 +7,7 @@ import passport from 'passport';
 import userRoutes from './routes/userRoutes.js';
 import girosRoutes from './routes/girosRoutes.js';
 import comunaRoutes from './routes/comunaRoutes.js';
+
 
 const app = express();
 const PORT = 3000;

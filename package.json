@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "dev": "nodemon index.js"
+ "scripts": {
+    "dev": "nodemon -r dotenv/config index.js"
   },
   "keywords": [],
   "author": "",

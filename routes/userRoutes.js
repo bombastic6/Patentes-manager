@@ -31,13 +31,20 @@ const upload = multer({
 // =========================================================================
 const googleVerify = async (accessToken, refreshToken, profile, done) => {
   try {
-    let user = await User.findOne({ correo: profile.emails[0].value });
+    // Verificación de seguridad para evitar error 500
+    const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+    
+    if (!email) {
+        return done(new Error("No se pudo obtener el correo electrónico del perfil de Google"), null);
+    }
+
+    let user = await User.findOne({ correo: email });
 
     if (!user) {
       user = new Invitado({
         googleId: profile.id,
         nombre: profile.displayName,
-        correo: profile.emails[0].value,
+        correo: email,
         rol: 'INVITADO',
         estado: 'APROBADO',
         region_tramite: 'No especificada',
@@ -52,6 +59,7 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
     }
     return done(null, user);
   } catch (error) {
+    console.error("Error detallado en googleVerify:", error); // Esto te dirá qué falla en los Logs
     return done(error, null);
   }
 };
