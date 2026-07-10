@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import multer from 'multer';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { User, Invitado, Colab, Admin, Cliente } from '../models/User.js';
+import { User, Invitado, Colab, Admin, Cliente } from '../models/user.js';
 // CORRECCIÓN: Nombre en minúscula para compatibilidad con Linux (Render)
 import Documento from '../models/documento.js'; 
 
