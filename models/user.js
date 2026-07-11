@@ -68,50 +68,50 @@ const User = mongoose.model('User', userSchema);
 // =========================================================================
 
 // 🟢 NIVEL 1: INVITADO (Actualizado a 5 Pasos)
+// 🟢 NIVEL 1: INVITADO (Actualizado para permitir registro inicial)
 const Invitado = User.discriminator('INVITADO', new mongoose.Schema({ 
   region_tramite: { 
     type: String, 
-    required: true,
+    required: false, // Cambiado de true a false
     default: 'No especificada' 
   },
   comuna_tramite: { 
     type: String, 
-    required: true,
+    required: false, // Cambiado de true a false
     default: 'No especificada' 
   },
   tipo_tramite_comuna: {
     type: Number,
-    required: true,
-    default: 0,
-    min: 0,
-    max: 2
+    required: false, // Cambiado de true a false
+    default: 0
   },
   constitucion_legal: {
     type: Number,
     enum: [1, 2, 3, 4],
-    required: true,
+    required: false, // Cambiado de true a false
     default: 4
   },
   giro_empresa_codigo: {
     type: Number,
-    required: true
+    required: false // <--- ¡AQUÍ ESTABA EL ERROR PRINCIPAL!
   },
   situacion_sii: {
     type: Number,
     enum: [1, 2, 3],
-    required: true,
+    required: false, // Cambiado de true a false
     default: 1
   },
   patente_primaria: {
     type: String,
-    required: true,
+    required: false, // Cambiado de true a false
     default: 'PENDIENTE'
   },
   patente_secundaria: {
     type: String,
-    default: '' 
+    default: '',
+    required: false
   }
-})); 
+}));
 
 // 🔵 NIVEL 2: CLIENTE
 const Cliente = User.discriminator('CLIENTE', new mongoose.Schema({ 
