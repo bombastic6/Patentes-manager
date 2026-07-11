@@ -1,4 +1,4 @@
-import 'dotenv/config'; // Esta línea debe ser la primera de todo el archivo
+import 'dotenv/config'; 
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors'; 
@@ -8,7 +8,6 @@ import userRoutes from './routes/userRoutes.js';
 import girosRoutes from './routes/girosRoutes.js';
 import comunaRoutes from './routes/comunaRoutes.js';
 
-
 const app = express();
 const PORT = 3000;
 
@@ -16,17 +15,24 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORRECCIÓN DE CORS: Configuración dinámica compatible con Live Server y Localhost directo
+// CORRECCIÓN DE CORS: Configuración actualizada para permitir Render y Localhost
 app.use(cors({
   origin: function (origin, callback) {
-    // Permite peticiones sin origen (como archivos locales file://) o cualquier variante de localhost/127.0.0.1
-    if (!origin || origin.indexOf('localhost') !== -1 || origin.indexOf('127.0.0.1') !== -1) {
+    // Definimos los dominios permitidos, incluyendo tu URL de Render
+    const dominiosPermitidos = [
+      'https://tupatente-backend.onrender.com', 
+      'http://localhost:3000', 
+      'http://127.0.0.1:3000'
+    ];
+
+    // Permite peticiones sin origen (como Postman o apps móviles) o si está en la lista blanca
+    if (!origin || dominiosPermitidos.indexOf(origin) !== -1 || origin.indexOf('localhost') !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Bloqueado por políticas de seguridad CORS'));
     }
   },
-  credentials: true // Permite el paso seguro de cookies y sesiones de Passport
+  credentials: true // Vital para que las sesiones de Passport se mantengan al cambiar de página
 }));
 
 // Servir archivos estáticos de la carpeta public
