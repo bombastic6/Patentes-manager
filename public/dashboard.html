@@ -327,16 +327,21 @@
 
   let todosLosGiros = [];
 
+// URL UNIFICADA DE TU BACKEND EN PRODUCCIÓN (Indispensable para Android APK)
+  const API_BASE_URL = "https://tupatente-backend.onrender.com";
+
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
 
     try {
-      const resGiros = await fetch('http://localhost:3000/api/giros/giros?search=ALL_DATA');
+      // CORRECCIÓN: Ahora apunta a Render de forma absoluta
+      const resGiros = await fetch(`${API_BASE_URL}/api/giros/giros?search=ALL_DATA`);
       if (resGiros.ok) {
         todosLosGiros = await resGiros.json();
       }
 
-      const response = await fetch('http://localhost:3000/api/users/perfil-actual');
+      // CORRECCIÓN: Ahora apunta a Render de forma absoluta
+      const response = await fetch(`${API_BASE_URL}/api/users/perfil-actual`);
       const resultado = await response.json();
 
       if (!response.ok || !resultado.success) {
@@ -351,6 +356,17 @@
       alert('Error de conexión con el servidor.');
     }
   });
+
+  // CORRECCIÓN EXTRA: El método logout local debe limpiar la cookie/sesión en el servidor de Render
+  async function ejecutarLogout() {
+    try {
+      await fetch(`${API_BASE_URL}/api/users/auth/logout`);
+    } catch (e) {
+      console.error("Error al notificar logout al servidor", e);
+    }
+    alert('Sesión cerrada correctamente.');
+    window.location.href = 'index.html';
+  }
 
   function ejecutarLogout() {
     alert('Sesión cerrada correctamente.');

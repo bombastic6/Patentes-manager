@@ -369,10 +369,16 @@
       });
     });
 
-    function ejecutarLogout() {
-      alert('Sesión cerrada correctamente.');
-      window.location.href = 'index.html';
+    // CORRECCIÓN EXTRA: Limpiar la sesión real en Render
+  async function ejecutarLogout() {
+    try {
+      await fetch('https://tupatente-backend.onrender.com/api/users/auth/logout');
+    } catch (e) {
+      console.error("Error al notificar logout al servidor", e);
     }
+    alert('Sesión cerrada correctamente.');
+    window.location.href = 'index.html';
+  }
   </script>
 </body>
 </html>

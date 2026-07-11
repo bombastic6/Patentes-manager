@@ -430,7 +430,14 @@
     });
   });
 
-  function cerrarSesion() { window.location.href = 'index.html'; }
+  async function cerrarSesion() {
+    try {
+      await fetch(`${API_BASE}/api/users/auth/logout`);
+    } catch (e) {
+      console.error("Error al notificar logout al servidor", e);
+    }
+    window.location.href = 'index.html';
+  }
 </script>
 </body>
 </html>

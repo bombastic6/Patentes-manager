@@ -322,6 +322,16 @@
   let comunaSeleccionadaValor = ""; 
   let tipoTramiteComunaValor = 0;   
 
+  async function cerrarSesion() {
+    try {
+      await fetch(`${API_BASE}/api/users/auth/logout`);
+    } catch (e) {
+      console.error("Error al notificar logout al servidor", e);
+    }
+    alert('Sesión cerrada correctamente.');
+    window.location.href = 'index.html';
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
       // LLAMADA ACTUALIZADA
@@ -399,6 +409,8 @@
       console.error('Error al precargar catálogo:', error);
     }
   }
+
+
 
   // ... (Funciones de UI sin cambios) ...
 
