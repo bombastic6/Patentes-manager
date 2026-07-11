@@ -223,6 +223,7 @@
 
     <form id="diagnosticoForm" onsubmit="event.preventDefault(); return false;">
       
+      <!-- ETAPA 1 -->
       <div id="etapa1">
         <h3>Paso 1: Lugar de Actividad</h3>
         <div class="form-group">
@@ -246,6 +247,7 @@
         </div>
       </div>
       
+      <!-- ETAPA 2 -->
       <div id="etapa2" style="display: none;">
         <h3>Paso 2: Constitución Legal y Actividad</h3>
         
@@ -281,11 +283,12 @@
         </div>
       </div>
 
+      <!-- ETAPA 3 -->
       <div id="etapa3" style="display: none;">
         <h3>Paso 3: Situación ante Impuestos Internos (SII)</h3>
         <div class="form-group">
           <label for="inicioActividades">¿Ya realizaste el Inicio de Actividades en el SII?</label>
-          <select id="inicioActividades" required>
+          <select id="inicioActividades" required onchange="limpiarError('inicioActividades')">
             <option value="" disabled selected>Selecciona una opción...</option>
             <option value="2">Sí, vendo productos físicos o mercancías (Almacén, ropa, comida, etc.)</option>
             <option value="3">Sí, ofrezco servicios profesionales o asesorías (Consultorías, software, educación, etc.)</option>
@@ -303,6 +306,7 @@
         </div>
       </div>
 
+      <!-- ETAPA 4 -->
       <div id="etapa4" style="display: none;">
         <h3>Paso 4: Requerimiento de Patente</h3>
         <div class="form-group">
@@ -339,153 +343,273 @@
 </div>
 
 <script>
+// ==========================================
+// CONFIGURACIÓN BASE
+// ==========================================
 const API_BASE = "https://tupatente-backend.onrender.com";
 
-  window.patentePrimariaSugerida = "Comercial";
-  let userEmail = "";
-  let userName = "";
-  let pasoActual = 1;
-  let totalPasosActivos = 4; 
-  let todosLosGiros = []; 
-  
-  let comunasCargadas = [];
-  let comunaSeleccionadaValor = ""; 
-  let tipoTramiteComunaValor = 0;   
+window.patentePrimariaSugerida = "Comercial";
+let userEmail = "";
+let userName = "";
+let pasoActual = 1;
+let totalPasosActivos = 4; 
+let todosLosGiros = []; 
+let comunasCargadas = [];
+let comunaSeleccionadaValor = ""; 
+let tipoTramiteComunaValor = 0;   
 
-  async function cerrarSesion() {
-    try {
-      await fetch(`${API_BASE}/api/users/auth/logout`);
-    } catch (e) {
-      console.error("Error al notificar logout al servidor", e);
+// ==========================================
+// FUNCIONES RESTAURADAS (NAVEGACIÓN Y UI)
+// ==========================================
+function mostrarError(idElemento) {
+  document.getElementById(`error-${idElemento}`).style.display = 'block';
+  document.getElementById(idElemento).classList.add('input-error');
+}
+
+function limpiarError(idElemento) {
+  const errorMsg = document.getElementById(`error-${idElemento}`);
+  const inputEl = document.getElementById(idElemento);
+  if (errorMsg) errorMsg.style.display = 'none';
+  if (inputEl) inputEl.classList.remove('input-error');
+}
+
+function irAlPaso(pasoDestino) {
+  // Validaciones antes de avanzar
+  if (pasoDestino > pasoActual) {
+    if (pasoActual === 1) {
+      if (!document.getElementById('selectRegion').value) { mostrarError('selectRegion'); return; }
+      if (!document.getElementById('selectComuna').value) { mostrarError('selectComuna'); return; }
+    } else if (pasoActual === 2) {
+      if (!document.getElementById('formoEmpresa').value) { mostrarError('formoEmpresa'); return; }
+      if (!document.getElementById('giroCodigoSII').value) { mostrarError('giroBuscar'); return; }
+    } else if (pasoActual === 3) {
+      if (!document.getElementById('inicioActividades').value) { mostrarError('inicioActividades'); return; }
     }
-    alert('Sesión cerrada correctamente.');
-    window.location.href = 'index.html';
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    try {
-      const response = await fetch(`${API_BASE}/api/users/perfil-actual`, {
-        method: 'GET',
-        credentials: 'include' 
-      });
-      const data = await response.json();
+  // Lógica de visualización
+  document.getElementById(`etapa${pasoActual}`).style.display = 'none';
+  document.getElementById(`etapa${pasoDestino}`).style.display = 'block';
 
-      if (data.success && data.usuario) {
-        userEmail = data.usuario.correo;
-        userName = data.usuario.nombre || 'Usuario Local';
-        document.getElementById('userBadge').textContent = `Usuario: ${userName} (${userEmail})`;
-        
-        actualizarCamposPatente();
-        cargarCatalogoCompleto();
-      } else {
-        alert('Acceso denegado. Por favor, inicie sesión.');
-        window.location.href = 'index.html';
-      }
-    } catch (error) {
-      console.error('Error al verificar sesión actual:', error);
-      alert('Error de conexión con el servidor.');
+  document.getElementById(`step${pasoActual}-indicator`).classList.remove('active');
+  if (pasoDestino > pasoActual) {
+    document.getElementById(`step${pasoActual}-indicator`).classList.add('completed');
+  } else {
+    document.getElementById(`step${pasoDestino}-indicator`).classList.remove('completed');
+  }
+  document.getElementById(`step${pasoDestino}-indicator`).classList.add('active');
+
+  pasoActual = pasoDestino;
+  if (pasoActual === 4) {
+    actualizarCamposPatente();
+  }
+}
+
+function evaluarEstadoConstitucion() {
+  limpiarError('formoEmpresa');
+  const valor = document.getElementById('formoEmpresa').value;
+  const hint = document.getElementById('hintPaso3');
+  if (valor === "4") {
+    hint.style.display = 'flex';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function actualizarComunaSeleccionada(valor) {
+  limpiarError('selectComuna');
+  comunaSeleccionadaValor = valor;
+  const comunaEncontrada = comunasCargadas.find(c => c.nombre === valor);
+  if (comunaEncontrada) {
+    tipoTramiteComunaValor = comunaEncontrada.tipo_tramite || 0;
+  }
+}
+
+function actualizarCamposPatente() {
+  const primaria = window.patentePrimariaSugerida || "Comercial";
+  document.getElementById('txtPatentePrimaria').textContent = "Patente " + primaria;
+  document.getElementById('patentePrimariaHidden').value = primaria;
+  cambiarPatenteSecundaria();
+}
+
+function cambiarPatenteSecundaria() {
+  const seleccion = document.getElementById('selectPatenteSecundaria').value;
+  document.getElementById('patenteSecundariaHidden').value = seleccion;
+}
+
+// LÓGICA DE AUTOCOMPLETADO
+document.getElementById('giroBuscar').addEventListener('input', function(e) {
+  limpiarError('giroBuscar');
+  const valorInput = this.value.toLowerCase();
+  const contenedorResultados = document.getElementById('autocomplete-results');
+  contenedorResultados.innerHTML = '';
+  
+  if (!valorInput) {
+    contenedorResultados.style.display = 'none';
+    document.getElementById('giroCodigoSII').value = '';
+    return;
+  }
+  
+  const filtrados = todosLosGiros.filter(g => {
+    return (g.nombre && g.nombre.toLowerCase().includes(valorInput)) || 
+           (g.codigo && g.codigo.toString().includes(valorInput));
+  }).slice(0, 15);
+
+  if (filtrados.length > 0) {
+    contenedorResultados.style.display = 'block';
+    filtrados.forEach(g => {
+      const divItem = document.createElement('div');
+      divItem.className = 'suggestion-item';
+      divItem.textContent = `${g.codigo} - ${g.nombre}`;
+      divItem.onclick = function() {
+        document.getElementById('giroBuscar').value = g.nombre;
+        document.getElementById('giroCodigoSII').value = g.codigo;
+        contenedorResultados.style.display = 'none';
+      };
+      contenedorResultados.appendChild(divItem);
+    });
+  } else {
+    contenedorResultados.style.display = 'none';
+  }
+});
+
+// ==========================================
+// CONEXIÓN CON EL BACKEND Y SESIÓN
+// ==========================================
+async function cerrarSesion() {
+  try {
+    await fetch(`${API_BASE}/api/users/auth/logout`);
+  } catch (e) {
+    console.error("Error al notificar logout al servidor", e);
+  }
+  alert('Sesión cerrada correctamente.');
+  window.location.href = 'index.html';
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const response = await fetch(`${API_BASE}/api/users/perfil-actual`, {
+      method: 'GET',
+      credentials: 'include' 
+    });
+    const data = await response.json();
+
+    if (data.success && data.usuario) {
+      userEmail = data.usuario.correo;
+      userName = data.usuario.nombre || 'Usuario Local';
+      document.getElementById('userBadge').textContent = `Usuario: ${userName} (${userEmail})`;
+      
+      // AL RESTAURAR ESTAS FUNCIONES, EL ERROR DESAPARECERÁ
+      actualizarCamposPatente();
+      cargarCatalogoCompleto();
+    } else {
+      alert('Acceso denegado. Por favor, inicie sesión.');
       window.location.href = 'index.html';
     }
-  });
-
-  async function cargarComunasDesdeBackend() {
-    const regionSeleccionada = document.getElementById('selectRegion').value;
-    const selectComuna = document.getElementById('selectComuna');
-    
-    limpiarError('selectRegion');
-    selectComuna.innerHTML = '<option value="" disabled selected>Cargando comunas...</option>';
-    selectComuna.disabled = true;
-    
-    comunaSeleccionadaValor = "";
-    tipoTramiteComunaValor = 0; 
-
-    if (!regionSeleccionada) return;
-
-    try {
-      const response = await fetch(`${API_BASE}/api/comunas`);
-      const data = await response.json();
-
-      if (data.success && data.comunas) {
-        selectComuna.innerHTML = '<option value="" disabled selected>Seleccione una comuna...</option>';
-        comunasCargadas = data.comunas.filter(c => c.region === regionSeleccionada);
-        if (comunasCargadas.length === 0) {
-          selectComuna.innerHTML = '<option value="" disabled selected>No hay comunas para esta región</option>';
-          return;
-        }
-        comunasCargadas.forEach(comuna => {
-          const opt = document.createElement('option');
-          opt.value = comuna.nombre;
-          opt.textContent = comuna.nombre;
-          selectComuna.appendChild(opt);
-        });
-        selectComuna.disabled = false;
-      }
-    } catch (error) {
-      console.error('Error de red:', error);
-    }
+  } catch (error) {
+    console.error('Error al verificar sesión actual:', error);
+    alert('Error de conexión con el servidor.');
+    window.location.href = 'index.html';
   }
+});
 
-  async function cargarCatalogoCompleto() {
-    try {
-      const response = await fetch(`${API_BASE}/api/giros/giros?search=ALL_DATA`);
-      if (!response.ok) throw new Error('No se pudo cargar el catálogo');
-      todosLosGiros = await response.json();
-    } catch (error) {
-      console.error('Error al precargar catálogo:', error);
-    }
-  }
+async function cargarComunasDesdeBackend() {
+  const regionSeleccionada = document.getElementById('selectRegion').value;
+  const selectComuna = document.getElementById('selectComuna');
+  
+  limpiarError('selectRegion');
+  selectComuna.innerHTML = '<option value="" disabled selected>Cargando comunas...</option>';
+  selectComuna.disabled = true;
+  
+  comunaSeleccionadaValor = "";
+  tipoTramiteComunaValor = 0; 
 
-  // --- ESCUCHA DEL EVENTO SUBMIT CON VALIDACIÓN DE SEGURIDAD ---
-  document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  if (!regionSeleccionada) return;
 
-    // VALIDACIÓN INTEGRADA: Verifica que exista un código de actividad antes de mandar los datos a Render
-    const codigoGiroSeleccionado = document.getElementById('giroCodigoSII').value;
-    if (!codigoGiroSeleccionado || codigoGiroSeleccionado.trim() === "") {
-      alert('⚠️ Por favor, regresa al Paso 2 y selecciona una actividad comercial válida haciendo clic en la lista de sugerencias.');
-      if (typeof irAlPaso === 'function') {
-        irAlPaso(2); // Te devuelve al paso correspondiente si la función está definida
+  try {
+    const response = await fetch(`${API_BASE}/api/comunas`);
+    const data = await response.json();
+
+    if (data.success && data.comunas) {
+      selectComuna.innerHTML = '<option value="" disabled selected>Seleccione una comuna...</option>';
+      comunasCargadas = data.comunas.filter(c => c.region === regionSeleccionada);
+      if (comunasCargadas.length === 0) {
+        selectComuna.innerHTML = '<option value="" disabled selected>No hay comunas para esta región</option>';
+        return;
       }
-      return;
-    }
-
-    const payload = {
-      nombre: userName,
-      correo: userEmail,
-      region_tramite: document.getElementById('selectRegion').value,
-      comuna_tramite: comunaSeleccionadaValor, 
-      tipo_tramite_comuna: tipoTramiteComunaValor, 
-      constitucion_legal: document.getElementById('formoEmpresa').value,
-      giro_empresa_codigo: codigoGiroSeleccionado,
-      situacion_sii: document.getElementById('inicioActividades').value,
-      patente_primaria: document.getElementById('patentePrimariaHidden').value,
-      patente_secundaria: document.getElementById('patenteSecundariaHidden').value
-    };
-
-    try {
-      const response = await fetch(`${API_BASE}/api/users/crear_invitado`, {
-        method: 'POST', 
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload)
+      comunasCargadas.forEach(comuna => {
+        const opt = document.createElement('option');
+        opt.value = comuna.nombre;
+        opt.textContent = comuna.nombre;
+        selectComuna.appendChild(opt);
       });
-
-      const resultado = await response.json();
-      if (response.ok && resultado.success) {
-        alert('¡Diagnóstico guardado y sincronizado con éxito!');
-        window.location.href = 'dashboard.html'; 
-      } else {
-        alert('Error: ' + (resultado.mensaje || 'No se pudieron guardar los cambios.'));
-      }
-    } catch (error) {
-      console.error('Error crítico:', error);
-      alert('Error de conexión.');
+      selectComuna.disabled = false;
     }
-  });
+  } catch (error) {
+    console.error('Error de red al cargar comunas:', error);
+  }
+}
+
+async function cargarCatalogoCompleto() {
+  try {
+    const response = await fetch(`${API_BASE}/api/giros/giros?search=ALL_DATA`);
+    if (!response.ok) throw new Error('No se pudo cargar el catálogo');
+    todosLosGiros = await response.json();
+  } catch (error) {
+    console.error('Error al precargar catálogo:', error);
+  }
+}
+
+// ==========================================
+// ENVÍO FINAL DE DATOS (SUBMIT)
+// ==========================================
+document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const codigoGiroSeleccionado = document.getElementById('giroCodigoSII').value;
+  if (!codigoGiroSeleccionado || codigoGiroSeleccionado.trim() === "") {
+    alert('⚠️ Por favor, regresa al Paso 2 y selecciona una actividad comercial válida haciendo clic en la lista de sugerencias.');
+    irAlPaso(2);
+    return;
+  }
+
+  const payload = {
+    nombre: userName,
+    correo: userEmail,
+    region_tramite: document.getElementById('selectRegion').value,
+    comuna_tramite: comunaSeleccionadaValor, 
+    tipo_tramite_comuna: tipoTramiteComunaValor, 
+    constitucion_legal: document.getElementById('formoEmpresa').value,
+    giro_empresa_codigo: codigoGiroSeleccionado,
+    situacion_sii: document.getElementById('inicioActividades').value,
+    patente_primaria: document.getElementById('patentePrimariaHidden').value,
+    patente_secundaria: document.getElementById('patenteSecundariaHidden').value
+  };
+
+  try {
+    const response = await fetch(`${API_BASE}/api/users/crear_invitado`, {
+      method: 'POST', 
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload)
+    });
+
+    const resultado = await response.json();
+    if (response.ok && resultado.success) {
+      alert('¡Diagnóstico guardado y sincronizado con éxito!');
+      window.location.href = 'dashboard.html'; 
+    } else {
+      alert('Error: ' + (resultado.mensaje || 'No se pudieron guardar los cambios.'));
+    }
+  } catch (error) {
+    console.error('Error crítico:', error);
+    alert('Error de conexión.');
+  }
+});
 </script>
 </body>
 </html>
