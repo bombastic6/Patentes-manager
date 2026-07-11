@@ -162,6 +162,39 @@
     button.back-btn { background-color: #e2e8f0; color: #333; }
       
     .user-badge { background-color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; text-align: right; }
+
+    /* --- OPTIMIZACIÓN RESPONSIVE PARA DISPOSITIVOS MÓVILES --- */
+    @media (max-width: 600px) {
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+        text-align: center;
+      }
+      .navbar-menu {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+      }
+      .btn-logout {
+        width: 100%;
+        padding: 10px;
+      }
+      .main-wrapper {
+        padding: 15px 10px;
+      }
+      .container {
+        padding: 20px 15px;
+      }
+      .btn-container {
+        flex-direction: column;
+        gap: 12px;
+      }
+      button.btn {
+        width: 100%;
+        padding: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -305,10 +338,7 @@
   </div>
 </div>
 
-<!-- ... (Mantén todo el código HTML hasta el script) ... -->
-
 <script>
-// Asegúrate de que esta línea esté idéntica en el archivo desplegado
 const API_BASE = "https://tupatente-backend.onrender.com";
 
   window.patentePrimariaSugerida = "Comercial";
@@ -334,7 +364,6 @@ const API_BASE = "https://tupatente-backend.onrender.com";
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // LLAMADA ACTUALIZADA
       const response = await fetch(`${API_BASE}/api/users/perfil-actual`, {
         method: 'GET',
         credentials: 'include' 
@@ -373,7 +402,6 @@ const API_BASE = "https://tupatente-backend.onrender.com";
     if (!regionSeleccionada) return;
 
     try {
-      // LLAMADA ACTUALIZADA
       const response = await fetch(`${API_BASE}/api/comunas`);
       const data = await response.json();
 
@@ -397,11 +425,8 @@ const API_BASE = "https://tupatente-backend.onrender.com";
     }
   }
 
-  // ... (Funciones auxiliares sin cambios) ...
-
   async function cargarCatalogoCompleto() {
     try {
-      // LLAMADA ACTUALIZADA
       const response = await fetch(`${API_BASE}/api/giros/giros?search=ALL_DATA`);
       if (!response.ok) throw new Error('No se pudo cargar el catálogo');
       todosLosGiros = await response.json();
@@ -410,13 +435,20 @@ const API_BASE = "https://tupatente-backend.onrender.com";
     }
   }
 
-
-
-  // ... (Funciones de UI sin cambios) ...
-
+  // --- ESCUCHA DEL EVENTO SUBMIT CON VALIDACIÓN DE SEGURIDAD ---
   document.getElementById('diagnosticoForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // VALIDACIÓN INTEGRADA: Verifica que exista un código de actividad antes de mandar los datos a Render
+    const codigoGiroSeleccionado = document.getElementById('giroCodigoSII').value;
+    if (!codigoGiroSeleccionado || codigoGiroSeleccionado.trim() === "") {
+      alert('⚠️ Por favor, regresa al Paso 2 y selecciona una actividad comercial válida haciendo clic en la lista de sugerencias.');
+      if (typeof irAlPaso === 'function') {
+        irAlPaso(2); // Te devuelve al paso correspondiente si la función está definida
+      }
+      return;
+    }
 
     const payload = {
       nombre: userName,
@@ -425,14 +457,13 @@ const API_BASE = "https://tupatente-backend.onrender.com";
       comuna_tramite: comunaSeleccionadaValor, 
       tipo_tramite_comuna: tipoTramiteComunaValor, 
       constitucion_legal: document.getElementById('formoEmpresa').value,
-      giro_empresa_codigo: document.getElementById('giroCodigoSII').value,
+      giro_empresa_codigo: codigoGiroSeleccionado,
       situacion_sii: document.getElementById('inicioActividades').value,
       patente_primaria: document.getElementById('patentePrimariaHidden').value,
       patente_secundaria: document.getElementById('patenteSecundariaHidden').value
     };
 
     try {
-      // LLAMADA ACTUALIZADA
       const response = await fetch(`${API_BASE}/api/users/crear_invitado`, {
         method: 'POST', 
         headers: {
@@ -456,6 +487,5 @@ const API_BASE = "https://tupatente-backend.onrender.com";
     }
   });
 </script>
-<!-- ... -->
 </body>
 </html>
