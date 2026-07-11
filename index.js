@@ -11,38 +11,45 @@ import comunaRoutes from './routes/comunaRoutes.js';
 const app = express();
 const PORT = 3000;
 
+// --- CONFIGURACIÓN VITAL PARA RENDER (HTTPS) ---
+// Render usa un proxy, esto permite que Express reconozca las cookies seguras
+app.set('trust proxy', 1);
+
 // Middlewares obligatorios
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORRECCIÓN DE CORS: Configuración actualizada para permitir Render y Localhost
+// CORRECCIÓN DE CORS: Configuración segura para permitir Render y Localhost
 app.use(cors({
   origin: function (origin, callback) {
-    // Definimos los dominios permitidos, incluyendo tu URL de Render
     const dominiosPermitidos = [
       'https://tupatente-backend.onrender.com', 
       'http://localhost:3000', 
       'http://127.0.0.1:3000'
     ];
-
-    // Permite peticiones sin origen (como Postman o apps móviles) o si está en la lista blanca
     if (!origin || dominiosPermitidos.indexOf(origin) !== -1 || origin.indexOf('localhost') !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Bloqueado por políticas de seguridad CORS'));
     }
   },
-  credentials: true // Vital para que las sesiones de Passport se mantengan al cambiar de página
+  credentials: true // Vital para permitir el envío de cookies de sesión
 }));
 
 // Servir archivos estáticos de la carpeta public
 app.use(express.static('public'));
 
-// Configuración de Sesiones obligatoria para Google
+// Configuración de Sesiones con seguridad para producción (HTTPS)
 app.use(session({
   secret: 'mi_clave_secreta_para_patentes',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    secure: true,        // Obligatorio para HTTPS (Render)
+    httpOnly: true,      // Seguridad adicional
+    sameSite: 'none',    // Vital para que la cookie sea aceptada en Render
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas de duración
+  }
 }));
 
 // Inicializar Passport
