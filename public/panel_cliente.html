@@ -58,6 +58,7 @@
 
     .card { background: #f8fafc; border: 1px solid #e2e8f0; border-top: 5px solid var(--border); border-radius: 8px; padding: 25px; margin-top: 20px; }
     .card.status-active { border-top-color: var(--primary); }
+    .card.status-active { border-top-color: var(--primary); }
     .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
     .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; color: white; }
     .badge.bg-active { background-color: var(--primary); }
@@ -76,6 +77,37 @@
     .step.completed .step-icon { background-color: var(--success); border-color: var(--success); color: white; }
     .step.current .step-icon { border-color: var(--primary); color: var(--primary); }
     .hidden { display: none; }
+
+    /* =========================================================================
+       CORRECCIÓN VISUAL: REGLAS RESPONSIVAS PARA PANTALLAS DE CELULARES
+       ========================================================================= */
+    @media (max-width: 480px) {
+      .navbar {
+        padding: 10px 15px; /* Reduce los márgenes externos en el celular */
+      }
+      .navbar-brand {
+        font-size: 1.1rem; /* Reduce el tamaño del logo "TuPatente" */
+      }
+      .navbar-menu {
+        gap: 12px; /* Reduce la separación entre el enlace y el botón */
+      }
+      .nav-link-ayuda {
+        font-size: 0.8rem; /* Achica un poco el texto "Volver al Panel" */
+        white-space: nowrap; /* Evita que el texto se rompa en dos renglones cortos */
+      }
+      .btn-logout {
+        padding: 6px 12px; /* Reduce el tamaño del botón rojo */
+        font-size: 0.8rem;  /* Achica la letra de "Cerrar Sesión" */
+        white-space: nowrap;
+      }
+      .container {
+        padding: 20px 15px; /* Aprovecha mejor el espacio lateral en el teléfono */
+      }
+      .grid-colab-info {
+        grid-template-columns: 1fr; /* Fuerza las cajas de datos a apilarse en vertical */
+        gap: 12px;
+      }
+    }
   </style>
 </head>
 <body>
