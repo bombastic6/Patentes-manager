@@ -4,193 +4,197 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Cliente - TuPatente</title>
-  <style>
-    :root {
-      --primary: #0070f3;
-      --success: #10b981;
-      --bg: #f4f6f9;
-      --card-bg: #ffffff;
-      --text: #333333;
-      --text-muted: #64748b;
-      --border: #cccccc;
-      --danger: #ef4444;
-    }
+<style>
+  :root {
+    --primary: #0070f3;
+    --success: #10b981;
+    --bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --text-muted: #64748b;
+    --border: #cccccc;
+    --danger: #ef4444;
+  }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
 
-    /* --- NAVBAR UNIFICADO (Basado en Dashboard) --- */
+  /* --- NAVBAR UNIFICADO --- */
+  .navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 30px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-sizing: border-box;
+  }
+
+  .navbar-brand {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--primary);
+    text-decoration: none;
+  }
+
+  .navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .nav-link-ayuda {
+    color: #4b5563;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+
+  .nav-link-ayuda:hover {
+    color: var(--primary);
+  }
+
+  .btn-logout {
+    background-color: var(--danger);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+
+  .btn-logout:hover {
+    background-color: #dc2626;
+  }
+
+  /* --- AJUSTE RESPONSIVO NAVBAR --- */
+  @media (max-width: 768px) {
     .navbar {
-      background-color: #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-sizing: border-box;
-    }
-    .navbar-brand {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: var(--primary);
-      text-decoration: none;
+      flex-direction: column !important;
+      gap: 15px !important;
+      padding: 15px !important;
+      text-align: center;
     }
     .navbar-menu {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-    .nav-link-ayuda {
-      color: #4b5563;
-      font-weight: 600;
-      text-decoration: none;
-      font-size: 0.95rem;
-      transition: color 0.2s;
-    }
-    .nav-link-ayuda:hover {
-      color: var(--primary);
-    }
-    .btn-logout {
-      background-color: var(--danger);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 0.9rem;
-      transition: background-color 0.2s;
-    }
-    .btn-logout:hover {
-      background-color: #dc2626;
-    }
-
-    /* --- CONTENEDOR PRINCIPAL --- */
-    .main-content {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 20px;
-    }
-
-    .container {
-      background: var(--card-bg);
-      padding: 35px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 100%;
-      max-width: 700px; 
-      box-sizing: border-box;
-    }
-
-    h2 {
-      margin-top: 0;
-      color: #111;
-      font-size: 1.8rem;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 10px;
-    }
-
-    .section-title {
-      font-size: 1.1rem;
-      color: var(--primary);
-      margin-top: 25px;
-      margin-bottom: 15px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 20px;
+      justify-content: center !important;
+      gap: 15px !important;
       flex-wrap: wrap;
     }
-
-    .form-row .form-group {
-      flex: 1;
-      min-width: 250px;
+    .navbar-brand {
+      margin-bottom: 5px;
     }
+  }
 
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 0.95rem;
-    }
+  /* --- CONTENEDOR PRINCIPAL --- */
+  .main-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+  }
 
-    input[type="text"],
-    input[type="email"],
-    input[type="number"],
-    input[type="file"],
-    select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
-    }
+  .container {
+    background: var(--card-bg);
+    padding: 35px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 700px; 
+    box-sizing: border-box;
+  }
 
-    input[type="file"] {
-      background-color: #f8fafc;
-      padding: 8px;
-      cursor: pointer;
-    }
+  h2 {
+    margin-top: 0;
+    color: #111;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 10px;
+  }
 
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
+  .section-title {
+    font-size: 1.1rem;
+    color: var(--primary);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 
-    input[readonly] {
-      background-color: #f8fafc;
-      color: var(--text-muted);
-      cursor: not-allowed;
-    }
+  .form-group { margin-bottom: 20px; }
+  .form-row { display: flex; gap: 20px; flex-wrap: wrap; }
+  .form-row .form-group { flex: 1; min-width: 250px; }
 
-    .btn-submit {
-      display: block;
-      width: 100%;
-      background-color: var(--success);
-      color: white;
-      border: none;
-      padding: 14px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
-      transition: background-color 0.2s, transform 0.1s;
-      margin-top: 30px;
-    }
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+  }
 
-    .btn-submit:hover {
-      background-color: #059669;
-      transform: translateY(-1px);
-    }
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="file"],
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
 
-    .btn-submit:active {
-      transform: translateY(0);
-    }
-  </style>
+  input[type="file"] {
+    background-color: #f8fafc;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+
+  .btn-submit {
+    display: block;
+    width: 100%;
+    background-color: var(--success);
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    transition: background-color 0.2s, transform 0.1s;
+    margin-top: 30px;
+  }
+
+  .btn-submit:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+  }
+</style>
 </head>
 <body>
 
