@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tu Hoja de Ruta - Diagnóstico Comercial</title>
-  <style>
+<style>
     :root {
       --primary: #0070f3;
       --success: #10b981;
@@ -127,7 +127,7 @@
       color: white;
     }
 
-    /* --- SISTEMA ESTRUCTURAL EN COLUMNAS HORIZONTALES --- */
+    /* --- SISTEMA ESTRUCTURAL --- */
     .roadmap-wrapper {
       position: relative;
       margin-top: 20px;
@@ -174,7 +174,7 @@
     .step-node.pending { background-color: var(--primary); }
     .step-node.goal { background-color: #475569; } 
 
-    /* --- TARJETAS DE HITOS --- */
+    /* --- TARJETAS --- */
     .milestone-card {
       background: #f8fafc;
       border: 1px solid #e2e8f0;
@@ -189,142 +189,51 @@
       box-sizing: border-box;
     }
     
-    .milestone-card.status-done {
-      border-top-color: var(--success);
-      background-color: #f0fdf4;
-    }
-    .milestone-card.status-pending {
-      border-top-color: var(--primary);
-      background-color: #f0f7ff;
-    }
-    .milestone-card.status-goal {
-      border-top-color: #475569;
-      background-color: #f8fafc;
-    }
+    .milestone-card.status-done { border-top-color: var(--success); background-color: #f0fdf4; }
+    .milestone-card.status-pending { border-top-color: var(--primary); background-color: #f0f7ff; }
+    .milestone-card.status-goal { border-top-color: #475569; background-color: #f8fafc; }
 
-    .card-header {
-      font-weight: bold;
-      font-size: 1.05rem;
-      margin-bottom: 8px;
-      color: #0f172a;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.7rem;
-      font-weight: bold;
-      color: white;
-      margin-top: 4px;
-    }
+    .card-header { font-weight: bold; font-size: 1.05rem; margin-bottom: 8px; color: #0f172a; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; color: white; margin-top: 4px; }
     .badge.bg-done { background-color: var(--success); }
     .badge.bg-pending { background-color: var(--primary); }
     .badge.bg-goal { background-color: #475569; }
 
-    .user-selection-box {
-      margin-top: 12px;
-      background-color: rgba(255, 255, 255, 0.7);
-      border: 1px dashed rgba(0, 0, 0, 0.08);
-      padding: 10px;
-      border-radius: 6px;
-    }
-    .selection-label {
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .selection-value {
-      font-size: 0.85rem;
-      color: #1e293b;
-      font-weight: 600;
-      margin-top: 2px;
-    }
+    .user-selection-box { margin-top: 12px; background-color: rgba(255, 255, 255, 0.7); border: 1px dashed rgba(0, 0, 0, 0.08); padding: 10px; border-radius: 6px; }
+    .selection-label { font-size: 0.75rem; font-weight: bold; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .selection-value { font-size: 0.85rem; color: #1e293b; font-weight: 600; margin-top: 2px; }
 
-    .btn-action {
-      display: block;
-      text-align: center;
-      background-color: var(--primary);
-      color: white;
-      padding: 9px 12px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      border-radius: 6px;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      margin-top: 12px; 
-      transition: background-color 0.2s;
-    }
+    .btn-action { display: block; text-align: center; background-color: var(--primary); color: white; padding: 9px 12px; font-size: 0.85rem; font-weight: bold; border-radius: 6px; text-decoration: none; cursor: pointer; border: none; margin-top: 12px; transition: background-color 0.2s; }
     .btn-action:hover { background-color: #0056b3; }
 
-    /* BOTÓN SECUNDARIO PARA TUTORIAL COMUNA */
-    .btn-secondary {
-      display: block;
-      text-align: center;
-      background-color: transparent;
-      color: var(--secondary-btn);
-      border: 1px solid var(--secondary-btn);
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      border-radius: 6px;
-      text-decoration: none;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: all 0.2s ease;
-    }
-    .btn-secondary:hover {
-      background-color: var(--secondary-btn);
-      color: white;
-    }
+    .btn-secondary { display: block; text-align: center; background-color: transparent; color: var(--secondary-btn); border: 1px solid var(--secondary-btn); padding: 8px 12px; font-size: 0.8rem; font-weight: bold; border-radius: 6px; text-decoration: none; cursor: pointer; margin-top: 8px; transition: all 0.2s ease; }
+    .btn-secondary:hover { background-color: var(--secondary-btn); color: white; }
     
     .text-muted { color: #64748b; font-size: 0.85rem; line-height: 1.4; margin: 8px 0 0 0; }
 
-    /* --- SOPORTE RESPONSIVO PARA TU S23 Y MÓVILES --- */
+    /* --- AJUSTE RESPONSIVO FINAL --- */
     @media (max-width: 768px) {
-      .main-content {
-        padding: 15px 10px;
+      .navbar {
+        flex-direction: column; 
+        gap: 15px; 
+        padding: 15px;
       }
-
-      .container {
-        padding: 20px 15px;
-      }
-
-      .header-area {
-        margin-bottom: 25px;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .btn-edit-form {
+      .navbar-menu {
         width: 100%;
         justify-content: center;
-        box-sizing: border-box;
+        gap: 15px;
       }
-
-      .roadmap-grid {
-        flex-direction: column;
-        align-items: center;
-        gap: 35px; /* Espacio óptimo entre los nodos apilados */
-      }
-
-      .roadmap-column {
-        width: 100%;
-        padding: 0;
-      }
-
-      .roadmap-line {
-        display: none; /* Elimina la línea horizontal que rompe el diseño */
-      }
-
-      .milestone-card {
-        min-height: auto; /* Evita alturas colapsadas o fijas rígidas */
-      }
+      .main-content { padding: 15px 10px; }
+      .container { padding: 20px 15px; }
+      .header-area { margin-bottom: 25px; flex-direction: column; align-items: flex-start; }
+      .btn-edit-form { width: 100%; justify-content: center; box-sizing: border-box; }
+      .roadmap-grid { flex-direction: column; align-items: center; gap: 35px; }
+      .roadmap-column { width: 100%; padding: 0; }
+      .roadmap-line { display: none; }
+      .milestone-card { min-height: auto; }
     }
-  </style>
+</style>
+```[cite: 12]
 </head>
 <body>
 

@@ -4,56 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal de Colaboradores Técnicos</title>
- <style>
+  <style>
     :root { 
       --primary: #2563eb; --primary-hover: #1d4ed8; --bg: #f8fafc; 
       --card-bg: #ffffff; --text: #1e293b; --text-muted: #64748b; 
       --border: #cbd5e1; --success: #10b981; 
     }
     body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
-    
-    .navbar { 
-      background-color: #ffffff; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      padding: 15px 30px; 
-    }
+    .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; }
     .navbar-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); text-decoration: none; }
     .btn-return { background-color: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem; }
-    
     .main-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px); padding: 20px; }
     .container { width: 100%; max-width: 550px; }
     .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 30px; }
-    
     .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 25px; }
     .tab-btn { flex: 1; text-align: center; padding: 12px; background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
     .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
-    
     .form-group { margin-bottom: 18px; }
     label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 500; }
     input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
     .row { display: flex; gap: 15px; }
     .row .form-group { flex: 1; }
-    
     .territorial-box { background: #f1f5f9; padding: 15px; border-radius: 8px; border: 1px dashed var(--border); margin-bottom: 15px; }
     .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 35px; }
     .tag { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; font-weight: 500; }
     .remove-btn { background: none; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; padding: 0; margin-left: 5px; }
     .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; }
     .hidden { display: none !important; }
-
-    /* --- AJUSTE RESPONSIVO PARA MÓVILES --- */
-    @media (max-width: 768px) {
-      .navbar {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
-      }
-      .navbar-brand { font-size: 1.2rem; }
-      .row { flex-direction: column; gap: 0; }
-    }
   </style>
 </head>
 <body>
@@ -133,7 +110,6 @@
             const res = await fetch(`${API_BASE}/api/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
                 body: JSON.stringify(dataObj)
             });
             const data = await res.json();
