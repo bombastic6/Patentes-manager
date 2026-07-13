@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tutorial de Inicio de Actividades - SII</title>
-  <style>
+ <style>
     :root {
       --primary: #0070f3;
       --success: #10b981;
@@ -325,7 +325,36 @@
       background-color: #0056b3;
       transform: translateY(-1px);
     }
-  </style>
+
+    /* --- AJUSTE RESPONSIVO --- */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+      }
+      .navbar-steps .steps-container {
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .navbar-menu {
+        width: 100%;
+        justify-content: center;
+        gap: 10px;
+      }
+      .content-card {
+        padding: 20px;
+      }
+      .btn-chileatiende {
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .navigation-area {
+        flex-direction: column;
+        gap: 20px;
+      }
+    }
+</style>
 </head>
 <body>
 
