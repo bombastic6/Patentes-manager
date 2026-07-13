@@ -134,8 +134,11 @@
     document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
 
     try {
-      const response = await fetch(`${API_BASE}/api/users/perfil-actual`);
-      const data = await response.json();
+      // Busca esta parte en panel_cliente.html
+const response = await fetch(`${API_BASE}/api/users/perfil-actual`, {
+  credentials: 'include' // <--- AGREGA ESTO
+});
+const data = await response.json();
 
       if (data.success && data.usuario.rol === 'CLIENTE') {
         const cliente = data.usuario;

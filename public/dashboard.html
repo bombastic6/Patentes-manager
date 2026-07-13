@@ -340,9 +340,11 @@
         todosLosGiros = await resGiros.json();
       }
 
-      // CORRECCIÓN: Ahora apunta a Render de forma absoluta
-      const response = await fetch(`${API_BASE_URL}/api/users/perfil-actual`);
-      const resultado = await response.json();
+     // Busca esta parte en el archivo de la Hoja de Ruta
+const response = await fetch(`${API_BASE_URL}/api/users/perfil-actual`, {
+  credentials: 'include' // <--- AGREGA ESTO
+});
+const resultado = await response.json();
 
       if (!response.ok || !resultado.success) {
         alert('Sesión expirada o inválida. Redirigiendo...');
