@@ -120,17 +120,31 @@ router.get('/perfil-actual', async (req, res) => {
   res.status(401).json({ success: false, mensaje: 'Sin sesión activa.' }); 
 });
 
+// ==========================================
+//  CORRECCIÓN QUIRÚRGICA AQUÍ
+// ==========================================
 router.get('/auth/logout', (req, res) => {
-    // req.logout() elimina al usuario de la sesión de Passport
-    // pero MANTIENE la sesión viva en el servidor.
     req.logout((err) => {
         if (err) {
             return res.status(500).json({ success: false, mensaje: "Error al cerrar sesión" });
         }
         
-        // NO llamamos a req.session.destroy() aquí.
-        // Solo respondemos éxito.
-        res.json({ success: true, mensaje: "Sesión de usuario cerrada, sesión de admin intacta" });
+        // Destruimos la sesión activa en el servidor para este cliente móvil
+        req.session.destroy((destroyErr) => {
+            if (destroyErr) {
+                return res.status(500).json({ success: false, mensaje: "Error al destruir la sesión" });
+            }
+            
+            // Forzamos al WebView de Android a purgar la cookie usando los parámetros de Render
+            res.clearCookie('connect.sid', {
+                path: '/',
+                secure: true,
+                sameSite: 'none',
+                httpOnly: true
+            });
+            
+            return res.json({ success: true, mensaje: "Sesión destruida limpiamente" });
+        });
     });
 });
 
@@ -345,7 +359,7 @@ router.put('/actualizar-a-cliente', upload.fields([{ name: 'file_propietario', m
         rut: rut.toUpperCase().trim(),
         telefono: telefono.trim(), 
         edad: Number(edad),
-        profesion: profesion.trim(),
+        profession: profesion.trim(),
         residencia: residencia.trim(),
         antecedentes: idAntecedentes, 
         lugar_act: {
@@ -410,7 +424,7 @@ router.post('/registrar-colaborador', upload.single('file_antecedentes'), async 
             rut: req.body.rut,
             telefono: req.body.telefono,
             rol: 'COLAB',
-            estado: 'PENDIENTE', // <--- Restaurado para el panel de administración
+            estado: 'PENDIENTE', 
             rango_act_comuna: comunas,
             rango_act_region: regiones,
             antecedentes: docGuardado._id 

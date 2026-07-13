@@ -98,19 +98,33 @@
   let usuarioActual = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const res = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
-    const data = await res.json();
-    if (!data.success) return window.location.href = "login_colab.html";
-    
-    usuarioActual = data.usuario;
-    document.getElementById('colabName').innerText = usuarioActual.nombre;
+    try {
+      const res = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
+      const data = await res.json();
+      if (!data.success) return window.location.href = "login_colab.html";
+      
+      usuarioActual = data.usuario;
+      document.getElementById('colabName').innerText = usuarioActual.nombre;
 
-    if (usuarioActual.estado !== 'APROBADO') {
-      renderStatus(usuarioActual.estado);
-    } else {
-      document.getElementById('dashboardSection').classList.remove('hidden');
-      document.getElementById('zonasDisplay').innerText = usuarioActual.rango_act_comuna.join(', ');
-      cargarClientes();
+      if (usuarioActual.estado !== 'APROBADO') {
+        renderStatus(usuarioActual.estado);
+      } else {
+        document.getElementById('dashboardSection').classList.remove('hidden');
+        
+        // CORRECCIÓN PROTECTORA: Validamos que existan las comunas antes de hacer el .join()
+        // Si el arreglo no existe o está vacío, muestra un texto alternativo en lugar de congelar la app
+        if (usuarioActual.rango_act_comuna && Array.isArray(usuarioActual.rango_act_comuna) && usuarioActual.rango_act_comuna.length > 0) {
+          document.getElementById('zonasDisplay').innerText = usuarioActual.rango_act_comuna.join(', ');
+        } else {
+          document.getElementById('zonasDisplay').innerText = "Sin comunas de cobertura asignadas";
+        }
+        
+        // Ejecución segura del cargado de clientes
+        cargarClientes();
+      }
+    } catch (error) {
+      console.error("Error cargando perfil actual:", error);
+      window.location.href = "login_colab.html";
     }
   });
 
@@ -126,12 +140,12 @@
               listDisp.innerHTML = data.disponibles.map(c => `
                   <div class="client-item" onclick="toggleDetails('disp-${c._id}')">
                       <strong>${c.nombre}</strong><br>
-                      <small>RUT: ${c.rut} | Comuna: ${c.lugar_act.comuna}</small>
+                      <small>RUT: ${c.rut} | Comuna: ${c.lugar_act?.comuna || 'No especificada'}</small>
                       
                       <div id="details-disp-${c._id}" class="details" onclick="event.stopPropagation()">
                           <p><strong>Edad:</strong> ${c.edad || 'N/A'}</p>
                           <p><strong>Residencia:</strong> ${c.residencia || 'N/A'}</p>
-                          <p><strong>Dirección Actividad:</strong> ${c.lugar_act.direccion || 'N/A'}</p>
+                          <p><strong>Dirección Actividad:</strong> ${c.lugar_act?.direccion || 'N/A'}</p>
                           <p><strong>Profesión:</strong> ${c.profesion || 'N/A'}</p>
                           <button class="btn-tomar" onclick="tomarCliente('${c._id}')">Tomar Cliente</button>
                       </div>
@@ -145,12 +159,12 @@
               listMis.innerHTML = data.misClientes.map(c => `
                   <div class="client-item" onclick="toggleDetails('mis-${c._id}')">
                       <strong>${c.nombre}</strong><br>
-                      <small>RUT: ${c.rut} | Comuna: ${c.lugar_act.comuna}</small>
+                      <small>RUT: ${c.rut} | Comuna: ${c.lugar_act?.comuna || 'No especificada'}</small>
                       
                       <div id="details-mis-${c._id}" class="details" onclick="event.stopPropagation()">
                           <p><strong>Edad:</strong> ${c.edad || 'N/A'}</p>
                           <p><strong>Residencia:</strong> ${c.residencia || 'N/A'}</p>
-                          <p><strong>Dirección Actividad:</strong> ${c.lugar_act.direccion || 'N/A'}</p>
+                          <p><strong>Dirección Actividad:</strong> ${c.lugar_act?.direccion || 'N/A'}</p>
                           <p><strong>Profesión:</strong> ${c.profesion || 'N/A'}</p>
                           <div style="margin-top: 15px; border-top: 1px solid #cbd5e1; padding-top: 10px;">
                               <p><strong>Progreso:</strong> ${c.pasos_completos || 0} / 4 pasos</p>
@@ -164,6 +178,7 @@
       } catch (err) {
           console.error("Error al cargar clientes:", err);
           document.getElementById('listDisponibles').innerHTML = "Error al conectar con el servidor.";
+          document.getElementById('listMisClientes').innerHTML = "Error al conectar con el servidor.";
       }
   }
 
@@ -195,11 +210,11 @@
   }
 
   async function cerrarSesion() {
-    // 1. Limpieza visual inmediata en pantalla
+    // 1. Limpieza visual inmediata en pantalla para remover rastros del usuario anterior
     document.getElementById('colabName').innerText = "Cerrando sesión...";
     
     try {
-        // 2. Avisamos al backend usando las credenciales
+        // 2. Avisamos al backend usando las credenciales explícitas
         await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) { 
         console.error("Error al notificar cierre al servidor", e); 
