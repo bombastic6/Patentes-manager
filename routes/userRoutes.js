@@ -121,14 +121,17 @@ router.get('/perfil-actual', async (req, res) => {
 });
 
 router.get('/auth/logout', (req, res) => {
-  logoutTemporalDesarrollo = true;
-  req.logout((err) => {
-    if (err) return res.status(500).json({ success: false, mensaje: 'Error al cerrar sesión.' });
-    req.session.destroy(() => {
-      res.clearCookie('connect.sid'); 
-      res.status(200).json({ success: true, mensaje: 'Sesión cerrada correctamente.' });
+    // req.logout() elimina al usuario de la sesión de Passport
+    // pero MANTIENE la sesión viva en el servidor.
+    req.logout((err) => {
+        if (err) {
+            return res.status(500).json({ success: false, mensaje: "Error al cerrar sesión" });
+        }
+        
+        // NO llamamos a req.session.destroy() aquí.
+        // Solo respondemos éxito.
+        res.json({ success: true, mensaje: "Sesión de usuario cerrada, sesión de admin intacta" });
     });
-  });
 });
 
 router.get('/admin/colaboradores-todos', async (req, res) => {

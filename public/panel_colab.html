@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita que el WebView recuerde visualmente al usuario anterior -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Panel Colaborador | TuPatente</title>
   <style>
     :root {
@@ -92,7 +98,6 @@
   let usuarioActual = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
-    // CORRECCIÓN: Agregar credentials: 'include'
     const res = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
     const data = await res.json();
     if (!data.success) return window.location.href = "login_colab.html";
@@ -111,7 +116,6 @@
 
   async function cargarClientes() {
       try {
-          // CORRECCIÓN: Agregar credentials: 'include'
           const res = await fetch(`${API_BASE}/api/users/clientes-cobertura`, { credentials: 'include' });
           const data = await res.json();
           
@@ -169,7 +173,6 @@
   }
 
   async function tomarCliente(clienteId) {
-    // CORRECCIÓN: Agregar credentials: 'include'
     const res = await fetch(`${API_BASE}/api/users/colab/tomar-cliente`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -192,9 +195,18 @@
   }
 
   async function cerrarSesion() {
-    // CORRECCIÓN: Agregar credentials: 'include'
-    await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
-    window.location.href = "login_colab.html";
+    // 1. Limpieza visual inmediata en pantalla
+    document.getElementById('colabName').innerText = "Cerrando sesión...";
+    
+    try {
+        // 2. Avisamos al backend usando las credenciales
+        await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
+    } catch (e) { 
+        console.error("Error al notificar cierre al servidor", e); 
+    }
+    
+    // 3. Redirección forzada inyectando una variable de tiempo única para romper la caché del WebView
+    window.location.href = "login_colab.html?nocache=" + new Date().getTime();
   }
 </script>
 </body>

@@ -2,6 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita persistencias de datos viejos en el WebView -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Panel de Administración Profesional</title>
   <style>
     /* Estilos base del Dashboard (Navbar) */
@@ -52,7 +58,8 @@
 <nav class="navbar">
   <a href="#" class="navbar-brand">TuPatente (Admin)</a>
   <div class="navbar-menu">
-    <button class="btn-logout" onclick="window.location.href='login_colab.html'">Cerrar Sesión</button>
+    <!-- CORRECCIÓN: El botón ahora ejecuta un logout formal en JS -->
+    <button class="btn-logout" onclick="cerrarSesionAdmin()">Cerrar Sesión</button>
   </div>
 </nav>
 
@@ -108,8 +115,9 @@
   async function cargarTodo() {
     const [resT, resColab, resCli] = await Promise.all([
       fetch('https://tupatente-backend.onrender.com/api/comunas/regiones-y-comunas').then(r=>r.json()),
-      fetch('https://tupatente-backend.onrender.com/api/users/admin/colaboradores-todos').then(r=>r.json()),
-      fetch('https://tupatente-backend.onrender.com/api/users/admin/clientes-todos').then(r=>r.json())
+      // CORRECCIÓN: Se agrega credentials para validar la sesión del admin de forma segura
+      fetch('https://tupatente-backend.onrender.com/api/users/admin/colaboradores-todos', { credentials: 'include' }).then(r=>r.json()),
+      fetch('https://tupatente-backend.onrender.com/api/users/admin/clientes-todos', { credentials: 'include' }).then(r=>r.json())
     ]);
     DATA_TERRITORIAL = resT.data;
     TODOS_COLABS = resColab.colaboradores;
@@ -199,13 +207,27 @@
   
   async function gestionar(id, estado) {
     if(!confirm("¿Confirmar acción?")) return;
+    // CORRECCIÓN: Se agrega credentials para autorizar los cambios del admin en el servidor
     await fetch('https://tupatente-backend.onrender.com/api/users/admin/cambiar-estado', { 
         method: 'POST', 
-        headers: {'Content-Type': 'application/json'}, 
+        headers: {'Content-Type': 'application/json'},
+        credentials: 'include', 
         body: JSON.stringify({id, estado}) 
     });
     cargarTodo();
   }
+
+  async function cerrarSesionAdmin() {
+    try {
+      // CORRECCIÓN: Notifica formalmente la salida al backend antes de redireccionar
+      await fetch('https://tupatente-backend.onrender.com/api/users/auth/logout', { credentials: 'include' });
+    } catch (e) {
+      console.error("Error al notificar salida al servidor", e);
+    }
+    // Redirección forzada rompiendo caché
+    window.location.href = "login_colab.html?nocache=" + new Date().getTime();
+  }
+
   cargarTodo();
 </script>
 </body>
