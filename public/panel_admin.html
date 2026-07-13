@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   
-  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita persistencias de datos viejos en el WebView -->
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Mantiene la lógica original pero asegura limpieza de sesión -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -58,7 +58,6 @@
 <nav class="navbar">
   <a href="#" class="navbar-brand">TuPatente (Admin)</a>
   <div class="navbar-menu">
-    <!-- CORRECCIÓN: El botón ahora ejecuta un logout formal en JS -->
     <button class="btn-logout" onclick="cerrarSesionAdmin()">Cerrar Sesión</button>
   </div>
 </nav>
@@ -113,9 +112,9 @@
   }
 
   async function cargarTodo() {
+    // MANTENEMOS TU LÓGICA ORIGINAL de carga, solo añadimos credentials: 'include' para asegurar que el admin tenga sesión
     const [resT, resColab, resCli] = await Promise.all([
       fetch('https://tupatente-backend.onrender.com/api/comunas/regiones-y-comunas').then(r=>r.json()),
-      // CORRECCIÓN: Se agrega credentials para validar la sesión del admin de forma segura
       fetch('https://tupatente-backend.onrender.com/api/users/admin/colaboradores-todos', { credentials: 'include' }).then(r=>r.json()),
       fetch('https://tupatente-backend.onrender.com/api/users/admin/clientes-todos', { credentials: 'include' }).then(r=>r.json())
     ]);
@@ -162,8 +161,8 @@
           <div class="base-info" onclick="toggle('${c._id}')"><strong>${c.nombre}</strong><br><small>${c.correo}</small></div>
           <div id="det-${c._id}" class="details" style="display:block;">
             <p><strong>RUT:</strong> ${c.rut}</p>
-            <p><strong>Regiones:</strong> ${c.rango_act_region.join(', ') || 'N/A'}</p>
-            <p><strong>Comunas:</strong> ${c.rango_act_comuna.join(', ') || 'N/A'}</p>
+            <p><strong>Regiones:</strong> ${c.rango_act_region?.join(', ') || 'N/A'}</p>
+            <p><strong>Comunas:</strong> ${c.rango_act_comuna?.join(', ') || 'N/A'}</p>
             <a href="https://tupatente-backend.onrender.com/api/users/admin/documento/${c.antecedentes}" target="_blank" class="btn-action" style="background:#6366f1;">Ver PDF Antecedentes</a>
             <button class="btn-action" style="background:#10b981;" onclick="gestionar('${c._id}', 'APROBADO')">Aprobar</button>
             <button class="btn-action" style="background:#ef4444;" onclick="gestionar('${c._id}', 'RECHAZADO')">Rechazar</button>
@@ -177,8 +176,8 @@
           <div class="base-info" onclick="toggle('${c._id}')"><strong>${c.nombre}</strong><br><small>${c.correo}</small></div>
           <div id="det-${c._id}" class="details">
             <p><strong>RUT:</strong> ${c.rut}</p>
-            <p><strong>Regiones:</strong> ${c.rango_act_region.join(', ') || 'N/A'}</p>
-            <p><strong>Comunas:</strong> ${c.rango_act_comuna.join(', ') || 'N/A'}</p>
+            <p><strong>Regiones:</strong> ${c.rango_act_region?.join(', ') || 'N/A'}</p>
+            <p><strong>Comunas:</strong> ${c.rango_act_comuna?.join(', ') || 'N/A'}</p>
           </div>
         </div>`;
     });
@@ -207,7 +206,6 @@
   
   async function gestionar(id, estado) {
     if(!confirm("¿Confirmar acción?")) return;
-    // CORRECCIÓN: Se agrega credentials para autorizar los cambios del admin en el servidor
     await fetch('https://tupatente-backend.onrender.com/api/users/admin/cambiar-estado', { 
         method: 'POST', 
         headers: {'Content-Type': 'application/json'},
@@ -219,7 +217,7 @@
 
   async function cerrarSesionAdmin() {
     try {
-      // CORRECCIÓN: Notifica formalmente la salida al backend antes de redireccionar
+      // Notifica al servidor antes de redirigir, manteniendo la seguridad de las cookies
       await fetch('https://tupatente-backend.onrender.com/api/users/auth/logout', { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar salida al servidor", e);

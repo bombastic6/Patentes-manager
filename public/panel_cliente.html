@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita que el WebView recuerde visualmente la sesión del cliente anterior -->
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita que el celular recuerde la sesión del cliente anterior -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -140,17 +140,18 @@
     document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
 
     try {
+      // CORRECCIÓN: Se agrega credentials: 'include' para validar la sesión
       const response = await fetch(`${API_BASE}/api/users/perfil-actual`, {
-        credentials: 'include' 
+        credentials: 'include'
       });
       const data = await response.json();
 
       if (data.success && data.usuario.rol === 'CLIENTE') {
         const cliente = data.usuario;
         
-        // Actualizamos dinámicamente el mensaje de bienvenida con su nombre
+        // Mensaje de bienvenida para limpiar visualmente al cargar
         document.getElementById('welcomeMessage').innerText = `¡Bienvenido, ${cliente.nombre}!`;
-
+        
         if (cliente.colab_activo == true && cliente.colab_assigned) {
           document.getElementById('colabCard').classList.add('status-active');
           document.getElementById('colabBadge').innerText = "Asignado";
@@ -162,6 +163,7 @@
                           ? (cliente.colab_assigned.$oid || cliente.colab_assigned._id) 
                           : cliente.colab_assigned;
 
+          // CORRECCIÓN: Se agrega credentials: 'include'
           const resColab = await fetch(`${API_BASE}/api/users/usuario/${idColab}`, { credentials: 'include' });
           const dataColab = await resColab.json();
           
@@ -196,17 +198,17 @@
   }
 
   async function ejecutarLogout() {
-    // 1. Efecto visual inmediato para remover rastros de datos
+    // 1. Limpieza visual inmediata para evitar "fantasmas"
     document.getElementById('welcomeMessage').innerText = "Cerrando sesión...";
     
     try {
-      // 2. Notificamos al servidor enviando cookies explícitas con credentials
+      // 2. Cerramos la sesión en el servidor con las credenciales
       await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar logout al servidor", e);
     }
     
-    // 3. Redirección limpia inyectando timestamp para forzar al WebView a limpiar la pantalla
+    // 3. Forzamos la redirección sin caché
     window.location.href = 'index.html?nocache=' + new Date().getTime();
   }
 </script>
