@@ -31,10 +31,7 @@ const upload = multer({
 const googleVerify = async (accessToken, refreshToken, profile, done) => {
   try {
     const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-    
-    if (!email) {
-        return done(new Error("No se pudo obtener el correo electrónico del perfil de Google"), null);
-    }
+    if (!email) return done(new Error("No se pudo obtener el correo"), null);
 
     let user = await User.findOne({ correo: email });
 
@@ -57,7 +54,6 @@ const googleVerify = async (accessToken, refreshToken, profile, done) => {
     }
     return done(null, user);
   } catch (error) {
-    console.error("Error detallado en googleVerify:", error);
     return done(error, null);
   }
 };
@@ -90,15 +86,11 @@ router.get('/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login-error' }),
   (req, res) => { 
     logoutTemporalDesarrollo = false; 
-
     const user = req.user;
-    
-    // REDIRECCIÓN DIRECTA AL BACKEND DONDE ESTÁN LOS HTML
     const base = "https://tupatente-backend.onrender.com";
 
     if (user.rol === 'INVITADO') {
       const comuna = user.comuna_tramite;
-
       if (!comuna || comuna.trim() === "" || comuna === "No especificada") {
         return res.redirect(`${base}/formulario.html`); 
       } else {
@@ -106,12 +98,9 @@ router.get('/auth/google/callback',
       }
     }
 
-    if (user.rol === 'CLIENTE') {
-      return res.redirect(`${base}/panel_cliente.html`);
-    } else if (user.rol === 'ADMIN') {
-      return res.redirect(`${base}/admin_panel.html`);
-    }
-
+    if (user.rol === 'CLIENTE') return res.redirect(`${base}/panel_cliente.html`);
+    else if (user.rol === 'ADMIN') return res.redirect(`${base}/admin_panel.html`);
+    
     res.redirect(`${base}/dashboard.html`); 
   }
 );
@@ -121,32 +110,20 @@ router.get('/perfil-actual', async (req, res) => {
     logoutTemporalDesarrollo = false; 
     return res.status(200).json({ success: true, usuario: req.user }); 
   } 
-
   if (logoutTemporalDesarrollo) {
     return res.status(401).json({ success: false, mensaje: 'Sesión cerrada explícitamente por el usuario.' });
   }
-
   try {
     const usuarioRespaldo = await Invitado.findOne({ rol: 'INVITADO' }).sort({ updatedAt: -1 });
-    
-    if (usuarioRespaldo) {
-      return res.status(200).json({ success: true, usuario: usuarioRespaldo });
-    }
-  } catch (error) {
-    console.error("Error al buscar usuario de respaldo en la BD:", error);
-  }
-
+    if (usuarioRespaldo) return res.status(200).json({ success: true, usuario: usuarioRespaldo });
+  } catch (error) { console.error("Error BD:", error); }
   res.status(401).json({ success: false, mensaje: 'Sin sesión activa.' }); 
 });
 
 router.get('/auth/logout', (req, res) => {
   logoutTemporalDesarrollo = true;
-
   req.logout((err) => {
-    if (err) {
-      return res.status(500).json({ success: false, mensaje: 'Error al cerrar sesión.' });
-    }
-    
+    if (err) return res.status(500).json({ success: false, mensaje: 'Error al cerrar sesión.' });
     req.session.destroy(() => {
       res.clearCookie('connect.sid'); 
       res.status(200).json({ success: true, mensaje: 'Sesión cerrada correctamente.' });
@@ -159,7 +136,6 @@ router.get('/admin/colaboradores-todos', async (req, res) => {
         const colabs = await Colab.find({})
             .populate('clientes_activos', 'nombre')
             .populate('clientes_completados', 'nombre');
-        
         res.status(200).json({ success: true, colaboradores: colabs });
     } catch (error) {
         res.status(500).json({ success: false, mensaje: 'Error al obtener colaboradores' });
@@ -169,22 +145,13 @@ router.get('/admin/colaboradores-todos', async (req, res) => {
 router.get('/clientes-cobertura', async (req, res) => {
     try {
         if (!req.user || req.user.rol !== 'COLAB') return res.status(403).json({ mensaje: 'No autorizado' });
-
         const disponibles = await Cliente.find({
             'lugar_act.comuna': { $in: req.user.rango_act_comuna },
-            $or: [
-                { colab_activo: { $ne: true } },
-                { colab_activo: { $exists: false } }
-            ]
+            $or: [ { colab_activo: { $ne: true } }, { colab_activo: { $exists: false } } ]
         });
-
-        const misClientes = await Cliente.find({
-            colab_assigned: req.user._id
-        });
-
+        const misClientes = await Cliente.find({ colab_assigned: req.user._id });
         res.status(200).json({ disponibles, misClientes });
     } catch (error) {
-        console.error("Error en /clientes-cobertura:", error);
         res.status(500).json({ success: false, mensaje: 'Error al obtener clientes' });
     }
 });
@@ -192,24 +159,14 @@ router.get('/clientes-cobertura', async (req, res) => {
 router.get('/admin/documento/:id', async (req, res) => {
     try {
         const doc = await Documento.findById(req.params.id);
-        
-        if (!doc || !doc.pdfArchivo) {
-            return res.status(404).json({ success: false, mensaje: "Documento no encontrado o vacío" });
-        }
-
-        const buffer = Buffer.isBuffer(doc.pdfArchivo) 
-            ? doc.pdfArchivo 
-            : Buffer.from(doc.pdfArchivo.buffer || doc.pdfArchivo);
-
+        if (!doc || !doc.pdfArchivo) return res.status(404).json({ success: false, mensaje: "Documento no encontrado o vacío" });
+        const buffer = Buffer.isBuffer(doc.pdfArchivo) ? doc.pdfArchivo : Buffer.from(doc.pdfArchivo.buffer || doc.pdfArchivo);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'inline; filename="antecedentes.pdf"');
         res.setHeader('Content-Length', buffer.length);
-        
         return res.send(buffer);
-        
     } catch (error) {
-        console.error("Error al obtener PDF:", error);
-        res.status(500).json({ success: false, mensaje: "Error interno al procesar el archivo" });
+        res.status(500).json({ success: false, mensaje: "Error interno" });
     }
 });
 
@@ -232,24 +189,34 @@ router.post('/admin/cambiar-estado', async (req, res) => {
     }
 });
 
+// =========================================================================
+// 3. RUTAS LOCALES: LOGIN, REGISTRO Y ASISTENTE
+// =========================================================================
+
 router.post('/registrar_local', async (req, res) => {
   try {
     const { nombre, correo, password } = req.body;
-    if (!nombre || !correo || !password) {
-      return res.status(400).json({ success: false, mensaje: 'Todos los campos son obligatorios.' });
-    }
+    if (!nombre || !correo || !password) return res.status(400).json({ success: false, mensaje: 'Campos obligatorios.' });
+    
     const emailFormateado = correo.toLowerCase().trim();
     const usuarioExistente = await Invitado.findOne({ correo: emailFormateado });
-    if (usuarioExistente) {
-      return res.status(400).json({ success: false, mensaje: 'Este correo electrónico ya se encuentra registrado.' });
-    }
+    if (usuarioExistente) return res.status(400).json({ success: false, mensaje: 'Correo ya registrado.' });
+    
     const nuevoUsuario = new Invitado({
       nombre: nombre.trim(),
       correo: emailFormateado,
       password: password, 
       rol: 'INVITADO',
-      estado: 'APROBADO'
+      estado: 'APROBADO',
+      region_tramite: 'No especificada',
+      comuna_tramite: 'No especificada',
+      constitucion_legal: 4,
+      giro_empresa_codigo: 0, 
+      situacion_sii: 1,
+      patente_primaria: 'PENDIENTE',
+      patente_secundaria: ''
     });
+    
     await nuevoUsuario.save();
     res.status(200).json({ success: true, mensaje: 'Usuario registrado exitosamente.' });
   } catch (error) {
@@ -260,30 +227,53 @@ router.post('/registrar_local', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { correo, password } = req.body;
-    if (!correo || !password) return res.status(400).json({ success: false });
-    const usuario = await User.findOne({ correo: correo.toLowerCase().trim() });
-    if (!usuario || (usuario.rol !== 'ADMIN' && usuario.rol !== 'COLAB') || usuario.password !== password) {
-      return res.status(401).json({ success: false, mensaje: 'Credenciales inválidas o sin permisos.' });
-    }
+    if (!correo || !password) return res.status(400).json({ success: false, mensaje: 'Credenciales obligatorias.' });
+    
+    const emailFormateado = correo.toLowerCase().trim();
+    const usuario = await User.findOne({ correo: emailFormateado });
+    
+    if (!usuario) return res.status(401).json({ success: false, mensaje: 'Usuario no encontrado.' });
+    if (usuario.rol !== 'ADMIN' && usuario.rol !== 'COLAB') return res.status(403).json({ success: false, mensaje: 'Sin permisos.' });
+    if (usuario.password !== password) return res.status(401).json({ success: false, mensaje: 'Contraseña incorrecta.' });
+
     req.login(usuario, (err) => {
-      if (err) return res.status(500).json({ success: false });
+      if (err) return res.status(500).json({ success: false, mensaje: 'Error de sesión.' });
       return res.status(200).json({
         success: true,
         redirectUrl: usuario.rol === 'ADMIN' ? 'panel_admin.html' : 'panel_colab.html',
         usuario: { id: usuario._id, nombre: usuario.nombre, rol: usuario.rol }
       });
     });
-  } catch (error) { res.status(500).json({ success: false }); }
+  } catch (error) { res.status(500).json({ success: false, mensaje: 'Error interno.' }); }
 });
 
 router.post('/crear_invitado', async (req, res) => {
   try {
-    const { correo, ...resto } = req.body;
-    let usuario = await Invitado.findOne({ correo: correo.toLowerCase().trim() });
-    if (!usuario) usuario = new Invitado({ correo, ...resto });
-    else Object.assign(usuario, resto);
-    await usuario.save();
-    res.status(200).json({ success: true, usuario });
+    const { nombre, correo, region_tramite, comuna_tramite, tipo_tramite_comuna, constitucion_legal, giro_empresa_codigo, situacion_sii, patente_primaria, patente_secundaria } = req.body;
+    
+    if (!correo) return res.status(400).json({ success: false, mensaje: 'El campo correo es obligatorio.' });
+    const emailFormateado = correo.toLowerCase().trim();
+    
+    let regionLimpia = 'No especificada';
+    if (region_tramite) regionLimpia = region_tramite.replace(/Región de\s+/i, '').replace(/Región\s+/i, '').trim();
+    
+    let usuario = await Invitado.findOne({ correo: emailFormateado });
+    const datosDiagnostico = {
+      nombre: nombre || 'Usuario Invitado', correo: emailFormateado, rol: 'INVITADO', estado: 'APROBADO',
+      region_tramite: regionLimpia, comuna_tramite: comuna_tramite || 'No especificada', 
+      tipo_tramite_comuna: Number(tipo_tramite_comuna) || 0, constitucion_legal: Number(constitucion_legal) || 4,
+      giro_empresa_codigo: Number(giro_empresa_codigo) || 0, situacion_sii: Number(situacion_sii) || 1,
+      patente_primaria: patente_primaria || 'PENDIENTE', patente_secundaria: patente_secundaria || ''
+    };
+
+    if (!usuario) {
+      usuario = new Invitado(datosDiagnostico);
+    } else {
+      Object.assign(usuario, datosDiagnostico);
+      usuario.set('pasos_completos', undefined);
+    }
+    const usuarioGuardado = await usuario.save();
+    res.status(200).json({ success: true, usuario: usuarioGuardado });
   } catch (error) { res.status(400).json({ success: false, mensaje: error.message }); }
 });
 
@@ -298,29 +288,83 @@ router.post('/crear-admin', async (req, res) => {
 router.post('/login-usuario', async (req, res) => {
   try {
     const { correo, password } = req.body;
+    if (!correo || !password) return res.status(400).json({ success: false, mensaje: 'Credenciales incompletas.' });
+    
     const usuario = await User.findOne({ correo: correo.toLowerCase().trim() });
-    if (!usuario || usuario.rol === 'ADMIN' || usuario.rol === 'COLAB' || usuario.password !== password) {
-      return res.status(401).json({ success: false });
-    }
+    if (!usuario) return res.status(401).json({ success: false, mensaje: 'Usuario no encontrado.' });
+    if (usuario.rol === 'ADMIN' || usuario.rol === 'COLAB') return res.status(403).json({ success: false, mensaje: 'Acceso no permitido.' });
+    if (usuario.password !== password) return res.status(401).json({ success: false, mensaje: 'Contraseña incorrecta.' });
+
     req.login(usuario, (err) => {
-      if (err) return res.status(500).json({ success: false });
-      return res.status(200).json({ success: true, usuario });
+      if (err) return res.status(500).json({ success: false, mensaje: 'Error de sesión.' });
+      return res.status(200).json({ success: true, usuario: { id: usuario._id, nombre: usuario.nombre, rol: usuario.rol, comuna_tramite: usuario.comuna_tramite || null } });
     });
-  } catch (error) { res.status(500).json({ success: false }); }
+  } catch (error) { res.status(500).json({ success: false, mensaje: 'Error interno.' }); }
 });
 
+// =========================================================================
+// 4. ACTUALIZAR O TRANSMUTAR ROL A CLIENTE (RESTABLECIDO AL ORIGINAL)
+// =========================================================================
 router.put('/actualizar-a-cliente', upload.fields([{ name: 'file_propietario', maxCount: 1 }, { name: 'file_antecedentes', maxCount: 1 }]), async (req, res) => {
   try {
-    const docPropietario = new Documento({
-      titulo: `Acreditación - ${req.body.rut}`,
-      pdfArchivo: req.files['file_propietario'][0].buffer,
-      pdfNombre: req.files['file_propietario'][0].originalname
+    if (!req.user) return res.status(401).json({ success: false, mensaje: 'No hay una sesión activa.' });
+
+    const { rut, telefono, edad, profesion, residencia, lugar_direccion, lugar_region, lugar_comuna, lugar_apta_Act } = req.body;
+    
+    if (!req.files || !req.files['file_propietario']) {
+      return res.status(400).json({ success: false, mensaje: 'El archivo de Acreditación (PDF) es obligatorio.' });
+    }
+
+    const archivoPropietarioObj = req.files['file_propietario'][0];
+    const nuevoDocPropietario = new Documento({
+      titulo: `Acreditación Propiedad - ${rut}`,
+      pdfArchivo: archivoPropietarioObj.buffer, 
+      pdfNombre: archivoPropietarioObj.originalname,
+      pdfContentType: archivoPropietarioObj.mimetype
     });
-    const docGuardado = await docPropietario.save();
-    const datosCliente = { ...req.body, rol: 'CLIENTE', lugar_act: { ...req.body.lugar_act, propietario: docGuardado._id } };
-    const usuarioActualizado = await User.findByIdAndUpdate(req.user._id, { $set: datosCliente }, { returnDocument: 'after', overwriteDiscriminatorKey: true });
-    res.status(200).json({ success: true, usuario: usuarioActualizado });
-  } catch (error) { res.status(500).json({ success: false, mensaje: error.message }); }
+    const docPropietarioGuardado = await nuevoDocPropietario.save();
+
+    let idAntecedentes = null;
+    if (req.files && req.files['file_antecedentes']) {
+        const archivoAntecedentesObj = req.files['file_antecedentes'][0];
+        const nuevoDocAntecedentes = new Documento({
+            titulo: `Antecedentes Adicionales - ${rut}`,
+            pdfArchivo: archivoAntecedentesObj.buffer,
+            pdfNombre: archivoAntecedentesObj.originalname,
+            pdfContentType: archivoAntecedentesObj.mimetype
+        });
+        const docAntecedentesGuardado = await nuevoDocAntecedentes.save();
+        idAntecedentes = docAntecedentesGuardado._id;
+    }
+
+    const datosActualizadosCliente = {
+        rol: 'CLIENTE', 
+        rut: rut.toUpperCase().trim(),
+        telefono: telefono.trim(), 
+        edad: Number(edad),
+        profesion: profesion.trim(),
+        residencia: residencia.trim(),
+        antecedentes: idAntecedentes, 
+        lugar_act: {
+            direccion: lugar_direccion.trim(),
+            region: lugar_region.trim(),
+            comuna: lugar_comuna.trim(),
+            propietario: docPropietarioGuardado._id,
+            apta_Act: lugar_apta_Act
+        }
+    };
+
+    const usuarioActualizado = await User.findByIdAndUpdate(req.user._id, { $set: datosActualizadosCliente }, { returnDocument: 'after', overwriteDiscriminatorKey: true });
+    
+    req.login(usuarioActualizado, (err) => {
+      if (err) return res.status(500).json({ success: false, mensaje: 'Error al refrescar sesión.' });
+      return res.status(200).json({ success: true, usuario: usuarioActualizado });
+    });
+
+  } catch (error) {
+    if (error.code === 11000) return res.status(400).json({ success: false, mensaje: 'El RUT ingresado ya se encuentra registrado.' });
+    return res.status(500).json({ success: false, mensaje: `Error interno: ${error.message}` });
+  }
 });
 
 router.get('/colab/cliente/:id', async (req, res) => {
@@ -337,18 +381,44 @@ router.post('/colab/actualizar-progreso', async (req, res) => {
     } catch (e) { res.status(500).json({ success: false }); }
 });
 
+// =========================================================================
+// REGISTRO DE COLABORADOR (RESTABLECIDO AL ORIGINAL)
+// =========================================================================
 router.post('/registrar-colaborador', upload.single('file_antecedentes'), async (req, res) => {
     try {
+        if (!req.file) return res.status(400).json({ success: false, mensaje: "El archivo de antecedentes es obligatorio." });
+
         const nuevoDocumento = new Documento({
-            titulo: `Antecedentes - ${req.body.rut}`,
+            titulo: `Antecedentes Colaborador - ${req.body.rut}`,
             pdfArchivo: req.file.buffer,
-            pdfNombre: req.file.originalname
+            pdfNombre: req.file.originalname,
+            pdfContentType: req.file.mimetype
         });
         const docGuardado = await nuevoDocumento.save();
-        const nuevoColab = new Colab({ ...req.body, rol: 'COLAB', antecedentes: docGuardado._id });
+
+        const comunasRaw = JSON.parse(req.body.comunas_data || "[]");
+        const comunas = comunasRaw.map(c => c.comuna);
+        const regiones = [...new Set(comunasRaw.map(c => c.region))];
+
+        const nuevoColab = new Colab({
+            nombre: req.body.nombre,
+            correo: req.body.correo,
+            password: req.body.password, 
+            rut: req.body.rut,
+            telefono: req.body.telefono,
+            rol: 'COLAB',
+            estado: 'PENDIENTE', // <--- Restaurado para el panel de administración
+            rango_act_comuna: comunas,
+            rango_act_region: regiones,
+            antecedentes: docGuardado._id 
+        });
+
         await nuevoColab.save();
-        res.status(200).json({ success: true });
-    } catch (error) { res.status(500).json({ success: false }); }
+        res.status(200).json({ success: true, mensaje: "Registro exitoso" });
+
+    } catch (error) {
+        res.status(500).json({ success: false, mensaje: error.message });
+    }
 });
 
 router.post('/colab/tomar-cliente', async (req, res) => {
