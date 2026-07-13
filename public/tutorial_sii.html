@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tutorial de Inicio de Actividades - SII</title>
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita persistencias de datos viejos en el WebView de Android -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
  <style>
     :root {
       --primary: #0070f3;
@@ -341,6 +347,8 @@
         width: 100%;
         justify-content: center;
         gap: 10px;
+        flex-direction: column;
+        align-items: center;
       }
       .content-card {
         padding: 20px;
@@ -348,10 +356,36 @@
       .btn-chileatiende {
         width: 100%;
         box-sizing: border-box;
+        text-align: center;
       }
       .navigation-area {
-        flex-direction: column;
+        flex-direction: column-reverse;
         gap: 20px;
+        width: 100%;
+      }
+      .btn-next, .btn-back-dash {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .step-label {
+        display: none; /* Evita colisiones de texto bajo los círculos en celulares pequeños */
+      }
+      .step-link {
+        min-width: auto;
+        padding: 4px;
+      }
+      .hero-portada h1 {
+        font-size: 1.4rem;
+      }
+      .hero-portada p {
+        font-size: 0.95rem;
+      }
+      .content-card h3 {
+        font-size: 1.2rem;
       }
     }
 </style>
@@ -446,8 +480,8 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // Ruta actualizada a la URL absoluta en Render
-      const response = await fetch(`${API_BASE}/api/users/perfil-actual`);
+      // CORRECCIÓN: Adición de credenciales seguras de sesión de usuario para entorno Render
+      const response = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
       const resultado = await response.json();
 
       if (response.ok && resultado.success && resultado.usuario) {
@@ -501,11 +535,13 @@
 
 async function cerrarSesion() {
     try {
-      await fetch(`${API_BASE}/api/users/auth/logout`);
+      // CORRECCIÓN DE SEGURIDAD: Envío de credenciales explícitas para invalidar la cookie activa
+      await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar logout al servidor", e);
     }
-    window.location.href = 'index.html';
+    // CORRECCIÓN ANTI-CACHÉ: Inyección de un timestamp dinámico para forzar la recarga del WebView móvil
+    window.location.href = 'index.html?nocache=' + new Date().getTime();
   }
 </script>
 </body>

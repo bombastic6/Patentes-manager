@@ -328,6 +328,83 @@
     .btn-back-dash:hover {
       text-decoration: underline;
     }
+
+    /* =========================================================================
+       CORRECCIÓN VISUAL RESPONSIVA: ADAPTACIÓN TOTAL PARA DISPOSITIVOS MÓVILES
+       ========================================================================= */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        padding: 12px 15px;
+        gap: 15px;
+      }
+      .navbar-brand {
+        text-align: center;
+        flex: none;
+        width: 100%;
+      }
+      .navbar-steps {
+        width: 100%;
+        justify-content: center;
+      }
+      .navbar-menu {
+        flex-direction: column;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        gap: 10px;
+        flex: none;
+      }
+      .nav-link-ayuda, .btn-logout {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .hero-portada h1 {
+        font-size: 1.5rem;
+      }
+      .hero-portada p {
+        font-size: 0.95rem;
+      }
+      .main-container {
+        margin: 15px auto;
+        padding: 0 10px;
+      }
+      .content-card {
+        padding: 20px 15px;
+      }
+      .navigation-area {
+        flex-direction: column-reverse;
+        gap: 15px;
+        width: 100%;
+      }
+      .btn-next, .btn-back-dash {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .step-label {
+        display: none; /* Oculta los textos largos bajo los círculos en pantallas chicas */
+      }
+      .step-link {
+        min-width: auto;
+        padding: 4px;
+      }
+      .content-card h3 {
+        font-size: 1.2rem;
+      }
+      .intro-text {
+        font-size: 0.95rem;
+      }
+      .btn-chileatiende {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -414,16 +491,14 @@
 
   </main>
 
-<!-- ... (Mantén todo el <head> y el HTML hasta el <script>) ... -->
-
 <script>
   // URL DE PRODUCCIÓN
   const API_BASE = "https://tupatente-backend.onrender.com";
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL (Ruta actualizada)
-      const response = await fetch(`${API_BASE}/api/users/perfil-actual`);
+      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL (Ruta actualizada con credenciales incluidas)
+      const response = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
       const resultado = await response.json();
 
       if (response.ok && resultado.success && resultado.usuario) {
@@ -506,15 +581,17 @@
     }
   });
 
-async function cerrarSesion() {
+  async function cerrarSesion() {
+    document.getElementById('navbarUser').textContent = "Cerrando...";
     try {
-      await fetch(`${API_BASE}/api/users/auth/logout`);
+      // CORRECCIÓN DE SEGURIDAD: Añadidas las credenciales explícitas para invalidar la cookie en Render
+      await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar logout al servidor", e);
     }
-    window.location.href = 'index.html';
+    // CORRECCIÓN ANTI-CACHÉ: Añadido timestamp único dinámico para romper la persistencia del WebView
+    window.location.href = 'index.html?nocache=' + new Date().getTime();
   }
 </script>
-<!-- ... -->
 </body>
 </html>

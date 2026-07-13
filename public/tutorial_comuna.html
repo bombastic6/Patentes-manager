@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Paso 1: Factibilidad Territorial y Comunal</title>
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita persistencias de datos viejos en el WebView de Android -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
 <style>
     :root {
       --primary: #0070f3;
@@ -258,6 +264,8 @@
         width: 100%;
         justify-content: center;
         gap: 10px;
+        flex-direction: column;
+        align-items: center;
       }
 
       .content-card {
@@ -270,8 +278,33 @@
       }
 
       .navigation-area {
-        flex-direction: column;
+        flex-direction: column-reverse;
         gap: 20px;
+      }
+      
+      .btn-next, .btn-back-dash {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .step-label {
+        display: none; /* Oculta etiquetas largas en móviles pequeños para evitar colisiones */
+      }
+      .step-link {
+        min-width: auto;
+        padding: 4px;
+      }
+      .hero-portada h1 {
+        font-size: 1.4rem;
+      }
+      .hero-portada p {
+        font-size: 0.95rem;
+      }
+      .content-card h3 {
+        font-size: 1.2rem;
       }
     }
 </style>
@@ -303,7 +336,7 @@
     <div class="navbar-menu">
       <span id="navbarUser" style="color: var(--text-muted); font-weight: 600; font-size: 0.95rem;">Cargando...</span>
       <a href="form_cliente.html" class="nav-link-ayuda">¡Nosotros te ayudamos!</a>
-      <button class="btn-logout" id="btnLogoutTop" onclick="cerrarSesion()">Cerrar Sesión</button>
+      <button class="btn-logout" id="btnLogoutTop">Cerrar Sesión</button>
     </div>
   </nav>
 
@@ -317,7 +350,7 @@
     <div class="content-card">
       <h3>¿Por qué este es el primer paso indispensable?</h3>
       <p class="intro-text">
-        Cada municipalidad en Chile opera de forma autónoma. Dependiendo de la comuna que seleccionaste para establecer tu empresa, tendrás acceso a vías rápidas de tramitación online o deberás prepararte para gestiones presenciales específicas.
+        Cada municipalidad en Chile opera de forma autónoma. Dependiendo de la comuna que seleccionaste para establecer tu empresa, tendrás acceso a vías rápidas de tramitación online o deberás preparartre para gestiones presenciales específicas.
       </p>
 
       <div class="diagnosis-container">
@@ -376,7 +409,8 @@
 
       btnLogoutTop?.addEventListener('click', cerrarSesion);
 
-      const responseUser = await fetch(`${API_BASE}/api/users/perfil-actual`);
+      // CORRECCIÓN: Se añaden las credenciales seguras para validar la sesión actual
+      const responseUser = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
       const resultadoUser = await responseUser.json();
 
       if (responseUser.ok && resultadoUser.success && resultadoUser.usuario) {
@@ -453,9 +487,11 @@
       if (cacheUsuarioActivo) {
         const payload = { ...cacheUsuarioActivo, tipo_tramite_comuna: codigoNumericoTramite };
         try {
+          // CORRECCIÓN: Envío seguro con credenciales añadidas
           await fetch(`${API_BASE}/api/users/crear_invitado`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(payload)
           });
         } catch (err) { console.error(err); }
@@ -466,11 +502,13 @@
 
   async function cerrarSesion() {
     try {
-      await fetch(`${API_BASE}/api/users/auth/logout`);
+      // CORRECCIÓN: Invalida de forma segura el token en Render
+      await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar logout al servidor", e);
     }
-    window.location.href = 'index.html';
+    // CORRECCIÓN: Purgado dinámico de caché para limpiar el WebView móvil
+    window.location.href = 'index.html?nocache=' + new Date().getTime();
   }
 </script>
 </body>

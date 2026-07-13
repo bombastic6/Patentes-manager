@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita persistencias de datos viejos en el WebView de Android -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Tutorial de Constitución de Empresa</title>
   <style>
     :root {
@@ -361,6 +367,8 @@
         width: 100%;
         justify-content: center;
         gap: 10px;
+        flex-direction: column;
+        align-items: center;
       }
 
       .content-card {
@@ -370,11 +378,38 @@
       .btn-chileatiende {
         width: 100%;
         box-sizing: border-box;
+        text-align: center;
       }
 
       .navigation-area {
-        flex-direction: column;
-        gap: 20px;
+        flex-direction: column-reverse;
+        gap: 15px;
+        width: 100%;
+      }
+
+      .btn-next, .btn-back-dash {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .step-label {
+        display: none; /* Evita colisiones de texto bajo los círculos en celulares pequeños */
+      }
+      .step-link {
+        min-width: auto;
+        padding: 4px;
+      }
+      .hero-portada h1 {
+        font-size: 1.4rem;
+      }
+      .hero-portada p {
+        font-size: 0.95rem;
+      }
+      .content-card h3 {
+        font-size: 1.2rem;
       }
     }
 </style>
@@ -478,8 +513,6 @@
     </div>
   </main>
 
-<!-- ... (Mantén todo el código HTML hasta el <script>) ... -->
-
 <script>
   // URL DE PRODUCCIÓN
   const API_BASE = "https://tupatente-backend.onrender.com";
@@ -488,8 +521,8 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL
-      const resPerfil = await fetch(`${API_BASE}/api/users/perfil-actual`);
+      // 1. OBTENER EL PERFIL DEL USUARIO ACTUAL (Añadidas credenciales)
+      const resPerfil = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
       const dataPerfil = await resPerfil.json();
 
       if (dataPerfil.success && dataPerfil.usuario) {
@@ -509,9 +542,9 @@
           txtInstruccionAccion.innerHTML = `🚀 <strong>¡Canal Pyme Ágil Activado!</strong>...`;
         }
 
-        // 2. CONSULTAR CATÁLOGO DE GIROS
+        // 2. CONSULTAR CATÁLOGO DE GIROS (Añadidas credenciales)
         if (codigoGiro && Number(codigoGiro) !== 0) {
-          const resGiros = await fetch(`${API_BASE}/api/giros?search=ALL_DATA`);
+          const resGiros = await fetch(`${API_BASE}/api/giros?search=ALL_DATA`, { credentials: 'include' });
           
           if (resGiros.ok) {
             const listaGiros = await resGiros.json();
@@ -547,13 +580,14 @@
 
   async function cerrarSesion() {
     try {
-      await fetch(`${API_BASE}/api/users/auth/logout`);
+      // CORRECCIÓN DE SEGURIDAD: Añadidas las credenciales explícitas para invalidar la cookie en Render
+      await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar logout", e);
     }
-    window.location.href = 'index.html';
+    // CORRECCIÓN ANTI-CACHÉ: Añadido timestamp único dinámico para romper la persistencia del WebView
+    window.location.href = 'index.html?nocache=' + new Date().getTime();
   }
 </script>
-<!-- ... -->
 </body>
 </html>
