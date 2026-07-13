@@ -2,8 +2,9 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- CONFIGURACIÓN ANTI-CACHÉ: Mantiene la lógica original pero asegura limpieza de sesión -->
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita persistencias de datos viejos en el WebView de Android -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -23,34 +24,94 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      box-sizing: border-box;
     }
     .navbar-brand { font-size: 1.4rem; font-weight: bold; color: #0070f3; text-decoration: none; }
     .navbar-menu { display: flex; align-items: center; gap: 20px; }
     .btn-logout { background-color: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
     /* Estilos del Panel */
-    .container-admin { padding: 20px; }
-    .filter-container { background: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; max-width: 700px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .container-admin { padding: 20px; box-sizing: border-box; }
+    .filter-container { background: white; padding: 20px; border-radius: 10px; margin-bottom: 25px; max-width: 700px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); box-sizing: border-box; }
     .row { display: flex; gap: 15px; }
     .form-group { flex: 1; }
     label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 5px; }
-    select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    select { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
 
     .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #cbd5e1; border-radius: 6px; font-weight: bold; }
+    .tab-btn { padding: 10px 20px; cursor: pointer; border: none; background: #cbd5e1; border-radius: 6px; font-weight: bold; transition: background-color 0.2s; }
     .tab-btn.active { background: #2563eb; color: white; }
     .section-content { display: none; }
     .section-content.active { display: block; }
 
     .grid { display: flex; gap: 20px; overflow-x: auto; padding: 10px 0 20px 0; min-height: 250px; align-items: flex-start; }
-    .card { background: white; border-radius: 10px; padding: 20px; min-width: 320px; max-width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #cbd5e1; }
+    .card { background: white; border-radius: 10px; padding: 20px; min-width: 320px; max-width: 320px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #cbd5e1; box-sizing: border-box; }
     .border-PENDIENTE { border-left-color: #f59e0b; }
     .border-APROBADO { border-left-color: #10b981; }
     
     .base-info { cursor: pointer; padding-bottom: 10px; }
     .details { display: none; margin-top: 10px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.85rem; }
     .badge { background: #64748b; color: white; padding: 2px 12px; border-radius: 15px; font-size: 0.8rem; }
-    .btn-action { margin: 5px 0; width: 100%; padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; text-decoration: none; display: block; text-align: center; }
+    .btn-action { margin: 5px 0; width: 100%; padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; text-decoration: none; display: block; text-align: center; box-sizing: border-box; }
+
+    /* --- OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES --- */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+        text-align: center;
+      }
+      .navbar-menu {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-logout {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+      }
+      .container-admin {
+        padding: 15px 10px;
+      }
+      .filter-container {
+        max-width: 100%;
+        padding: 15px;
+      }
+      .row {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .tabs {
+        flex-direction: column;
+        gap: 8px;
+      }
+      .tab-btn {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+      }
+      .grid {
+        flex-direction: column; /* Apilamiento vertical responsivo para visualización cómoda en teléfonos */
+        overflow-x: visible;
+        min-height: auto;
+        gap: 15px;
+      }
+      .card {
+        min-width: 100%;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+        text-align: center;
+      }
+      h3 {
+        font-size: 1.1rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -107,14 +168,20 @@
     document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
+    
+    // CORRECCIÓN: Compatibilidad explícita de eventos táctiles para WebViews estrictos de Android
+    const evt = window.event || arguments.callee.caller.arguments[0];
+    if (evt && evt.target) {
+      evt.target.classList.add('active');
+    }
+    
     document.getElementById('filterSection').style.display = (id === 'colabs') ? 'block' : 'none';
   }
 
   async function cargarTodo() {
-    // MANTENEMOS TU LÓGICA ORIGINAL de carga, solo añadimos credentials: 'include' para asegurar que el admin tenga sesión
+    // CORRECCIÓN: Incorporación de credenciales en el catálogo territorial para evitar bloqueos por cookie en Render
     const [resT, resColab, resCli] = await Promise.all([
-      fetch('https://tupatente-backend.onrender.com/api/comunas/regiones-y-comunas').then(r=>r.json()),
+      fetch('https://tupatente-backend.onrender.com/api/comunas/regiones-y-comunas', { credentials: 'include' }).then(r=>r.json()),
       fetch('https://tupatente-backend.onrender.com/api/users/admin/colaboradores-todos', { credentials: 'include' }).then(r=>r.json()),
       fetch('https://tupatente-backend.onrender.com/api/users/admin/clientes-todos', { credentials: 'include' }).then(r=>r.json())
     ]);
@@ -122,6 +189,9 @@
     TODOS_COLABS = resColab.colaboradores;
     TODOS_CLIENTES = resCli.clientes;
     const regSelect = document.getElementById('filterRegion');
+    
+    // Evita duplicación infinita si se vuelve a llamar a cargarTodo() de manera asíncrona
+    regSelect.innerHTML = '<option value="">Todas las regiones</option>';
     Object.keys(DATA_TERRITORIAL).forEach(r => regSelect.innerHTML += `<option value="${r}">${r}</option>`);
     renderizar();
   }
@@ -129,7 +199,7 @@
   function actualizarComunas() {
     const reg = document.getElementById('filterRegion').value;
     const selCom = document.getElementById('filterComuna');
-    selCom.innerHTML = '<option value="">Todas</option>';
+    selCom.innerHTML = '<option value="">Todas las comunas</option>';
     if (reg && DATA_TERRITORIAL[reg]) {
       selCom.disabled = false;
       DATA_TERRITORIAL[reg].forEach(c => selCom.innerHTML += `<option value="${c.toLowerCase()}">${c}</option>`);
@@ -149,8 +219,8 @@
     const gridPend = document.getElementById('gridPend'), gridApr = document.getElementById('gridApr');
     gridPend.innerHTML = ''; gridApr.innerHTML = '';
     
-    pends = filtrados.filter(c => c.estado === 'PENDIENTE');
-    aprs = filtrados.filter(c => c.estado === 'APROBADO');
+    const pends = filtrados.filter(c => c.estado === 'PENDIENTE');
+    const aprs = filtrados.filter(c => c.estado === 'APROBADO');
 
     document.getElementById('countPend').innerText = pends.length;
     document.getElementById('countApr').innerText = aprs.length;
@@ -182,6 +252,8 @@
         </div>`;
     });
 
+    // CORRECCIÓN: Declaración segura del contenedor para evitar fallas bajo directivas de compilación estrictas en la APK
+    const gridClientes = document.getElementById('gridClientes');
     document.getElementById('countCli').innerText = TODOS_CLIENTES.length;
     gridClientes.innerHTML = TODOS_CLIENTES.map(cli => `
       <div class="card" style="border-left-color:#8b5cf6;">
@@ -217,7 +289,6 @@
 
   async function cerrarSesionAdmin() {
     try {
-      // Notifica al servidor antes de redirigir, manteniendo la seguridad de las cookies
       await fetch('https://tupatente-backend.onrender.com/api/users/auth/logout', { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar salida al servidor", e);

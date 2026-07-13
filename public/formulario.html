@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Evita que el WebView almacene respuestas antiguas de la sesión -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Asistente de Diagnóstico - Patentes</title>
   <style>
     :root {
@@ -89,6 +95,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       width: 100%;
       max-width: 600px;
+      box-sizing: border-box;
     }
 
     h2, h3 {
@@ -109,6 +116,7 @@
     .step {
       width: 35px; height: 35px; background-color: var(--border); color: white; border-radius: 50%;
       display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2;
+      box-shadow: 0 0 0 4px var(--card-bg);
     }
     .step.active { background-color: var(--primary); }
     .step.completed { background-color: var(--success); }
@@ -164,7 +172,7 @@
     .user-badge { background-color: #e2e8f0; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; text-align: right; }
 
     /* --- OPTIMIZACIÓN RESPONSIVE PARA DISPOSITIVOS MÓVILES --- */
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .navbar {
         flex-direction: column;
         gap: 12px;
@@ -176,9 +184,10 @@
         gap: 10px;
         width: 100%;
       }
-      .btn-logout {
+      .btn-logout, .nav-link-ayuda {
         width: 100%;
-        padding: 10px;
+        text-align: center;
+        box-sizing: border-box;
       }
       .main-wrapper {
         padding: 15px 10px;
@@ -187,12 +196,29 @@
         padding: 20px 15px;
       }
       .btn-container {
-        flex-direction: column;
+        flex-direction: column-reverse;
         gap: 12px;
       }
       button.btn {
         width: 100%;
         padding: 14px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h2 {
+        font-size: 1.4rem;
+      }
+      h3 {
+        font-size: 1.15rem;
+      }
+      .step {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+      }
+      .progress-bar::before {
+        top: 13px;
       }
     }
   </style>
@@ -328,7 +354,7 @@
               <option value="Profesional">Patente Profesional</option>
               <option value="Microempresa Familiar">Microempresa Familiar</option>
             </select>
-            <input type="hidden" id="patenteSecundariaHidden" name="patente_secundaria" value="">
+            <input type="hidden" id="patenteSecundariaHidden" name="patente_secondary" value="">
           </div>
         </div>
         
@@ -359,7 +385,7 @@ let comunaSeleccionadaValor = "";
 let tipoTramiteComunaValor = 0;   
 
 // ==========================================
-// FUNCIONES RESTAURADAS (NAVEGACIÓN Y UI)
+// FUNCIONES (NAVEGACIÓN Y UI)
 // ==========================================
 function mostrarError(idElemento) {
   document.getElementById(`error-${idElemento}`).style.display = 'block';
@@ -478,12 +504,14 @@ document.getElementById('giroBuscar').addEventListener('input', function(e) {
 // ==========================================
 async function cerrarSesion() {
   try {
-    await fetch(`${API_BASE}/api/users/auth/logout`);
+    // CORRECCIÓN: Invalida explícitamente el token de sesión en Render
+    await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
   } catch (e) {
     console.error("Error al notificar logout al servidor", e);
   }
   alert('Sesión cerrada correctamente.');
-  window.location.href = 'index.html';
+  // CORRECCIÓN: Evita el cacheo dinámico en la redirección de la APK
+  window.location.href = 'index.html?nocache=' + new Date().getTime();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -499,7 +527,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       userName = data.usuario.nombre || 'Usuario Local';
       document.getElementById('userBadge').textContent = `Usuario: ${userName} (${userEmail})`;
       
-      // AL RESTAURAR ESTAS FUNCIONES, EL ERROR DESAPARECERÁ
       actualizarCamposPatente();
       cargarCatalogoCompleto();
     } else {
@@ -527,7 +554,8 @@ async function cargarComunasDesdeBackend() {
   if (!regionSeleccionada) return;
 
   try {
-    const response = await fetch(`${API_BASE}/api/comunas`);
+    // CORRECCIÓN: Inyección de credenciales seguras de sesión para llamadas en Render
+    const response = await fetch(`${API_BASE}/api/comunas`, { credentials: 'include' });
     const data = await response.json();
 
     if (data.success && data.comunas) {
@@ -552,7 +580,8 @@ async function cargarComunasDesdeBackend() {
 
 async function cargarCatalogoCompleto() {
   try {
-    const response = await fetch(`${API_BASE}/api/giros/giros?search=ALL_DATA`);
+    // CORRECCIÓN: Inyección de credenciales seguras de sesión para llamadas en Render
+    const response = await fetch(`${API_BASE}/api/giros/giros?search=ALL_DATA`, { credentials: 'include' });
     if (!response.ok) throw new Error('No se pudo cargar el catálogo');
     todosLosGiros = await response.json();
   } catch (error) {

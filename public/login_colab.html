@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Vital para el comportamiento del WebView en la APK móvil -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Portal de Colaboradores Técnicos</title>
   <style>
     :root { 
@@ -11,12 +17,13 @@
       --border: #cbd5e1; --success: #10b981; 
     }
     body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
-    .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; }
+    .navbar { background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; box-sizing: border-box; }
     .navbar-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); text-decoration: none; }
-    .btn-return { background-color: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem; }
-    .main-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px); padding: 20px; }
-    .container { width: 100%; max-width: 550px; }
-    .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 30px; }
+    .btn-return { background-color: #64748b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem; transition: background-color 0.2s; }
+    .btn-return:hover { background-color: #475569; }
+    .main-wrapper { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px); padding: 20px; box-sizing: border-box; }
+    .container { width: 100%; max-width: 550px; box-sizing: border-box; }
+    .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 30px; box-sizing: border-box; }
     .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 25px; }
     .tab-btn { flex: 1; text-align: center; padding: 12px; background: none; border: none; font-size: 1rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
     .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px; }
@@ -29,8 +36,44 @@
     .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; min-height: 35px; }
     .tag { padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; font-weight: 500; }
     .remove-btn { background: none; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; padding: 0; margin-left: 5px; }
-    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+    .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: background-color 0.2s; }
+    .btn-submit:hover { background-color: var(--primary-hover); }
     .hidden { display: none !important; }
+
+    /* --- OPTIMIZACIÓN RESPONSIVA PARA DISPOSITIVOS MÓVILES --- */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 15px;
+        text-align: center;
+      }
+      .btn-return {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .main-wrapper {
+        padding: 10px;
+      }
+      .card {
+        padding: 20px 15px;
+      }
+      .row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tab-btn {
+        font-size: 0.85rem;
+        padding: 10px 5px;
+      }
+      .navbar-brand {
+        font-size: 1.2rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -85,14 +128,17 @@
     const selectRegion = document.getElementById('selectorRegion'), selectComuna = document.getElementById('selectorComuna'), tagsContainer = document.getElementById('tagsContainer');
 
     window.switchTab = (tab) => {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active'));
-        document.getElementById('loginForm').classList.toggle('hidden');
-        document.getElementById('registerForm').classList.toggle('hidden');
+        const buttons = document.querySelectorAll('.tab-btn');
+        buttons[0].classList.toggle('active', tab === 'login');
+        buttons[1].classList.toggle('active', tab === 'register');
+        document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+        document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
     };
 
     document.addEventListener("DOMContentLoaded", async () => {
         try {
-            const res = await fetch(`${API_BASE}/api/comunas/regiones-y-comunas`).then(r=>r.json());
+            // CORRECCIÓN: Adición de credenciales seguras de contexto
+            const res = await fetch(`${API_BASE}/api/comunas/regiones-y-comunas`, { credentials: 'include' }).then(r=>r.json());
             if (res.success) {
                 DATA_TERRITORIAL = res.data;
                 selectRegion.innerHTML = '<option value="">-- Elige una región --</option>';
@@ -107,9 +153,11 @@
         const dataObj = Object.fromEntries(formData.entries());
 
         try {
+            // CORRECCIÓN: Inyección de credentials 'include' para fijar cookies en Render backend
             const res = await fetch(`${API_BASE}/api/users/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(dataObj)
             });
             const data = await res.json();
@@ -164,14 +212,17 @@
         formData.append('comunas_data', JSON.stringify(comunasSeleccionadas));
 
         try {
+            // CORRECCIÓN: Inyección de credentials 'include' para control multipart transaccional
             const res = await fetch(`${API_BASE}/api/users/registrar-colaborador`, {
                 method: 'POST',
+                credentials: 'include',
                 body: formData
             });
             const data = await res.json();
             if (res.ok) {
                 alert("¡Postulación enviada exitosamente!");
-                location.reload();
+                // CORRECCIÓN ANTI-CACHÉ: Evita la recarga estática del WebView móvil al mutar el estado
+                window.location.href = window.location.pathname + '?nocache=' + new Date().getTime();
             } else {
                 alert(data.mensaje || "Error al enviar la postulación.");
             }

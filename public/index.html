@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Vital para el comportamiento del WebView en la APK móvil -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Acceso al Sistema - Plataforma Pymes</title>
  <style>
     :root {
@@ -15,18 +21,6 @@
       --text-muted: #64748b;
     }
 
-    /* Estilos del Nav */
-    .navbar {
-      background-color: #ffffff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 30px;
-    }
-    .navbar-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); text-decoration: none; }
-    .btn-colab { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem; }
-
     body {
       font-family: Arial, sans-serif;
       background-color: var(--bg);
@@ -37,7 +31,21 @@
       min-height: 100vh;
     }
 
-    .container-main { display: flex; justify-content: center; align-items: center; flex: 1; padding: 20px; }
+    /* Estilos del Nav */
+    .navbar {
+      background-color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      box-sizing: border-box;
+    }
+    .navbar-brand { font-size: 1.4rem; font-weight: bold; color: var(--primary); text-decoration: none; }
+    .btn-colab { background-color: #f1f5f9; color: var(--text); border: 1px solid var(--border); padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 0.9rem; transition: background-color 0.2s; }
+    .btn-colab:hover { background-color: #e2e8f0; }
+
+    .container-main { display: flex; justify-content: center; align-items: center; flex: 1; padding: 20px; box-sizing: border-box; }
 
     .auth-card {
       background: var(--card-bg);
@@ -114,17 +122,42 @@
     .auth-link:hover { text-decoration: underline; }
     .hidden { display: none; }
 
-    /* --- AJUSTE RESPONSIVO PARA MÓVILES (S23) --- */
+    /* --- AJUSTE RESPONSIVO PARA MÓVILES --- */
     @media (max-width: 768px) {
       .navbar {
         flex-direction: column; /* Apila logo y botón */
         gap: 15px;             /* Espacio vertical entre ellos */
         padding: 20px;         /* Más aire en los bordes */
+        text-align: center;
       }
       .navbar-brand { font-size: 1.3rem; }
     }
-</style>
 
+    @media (max-width: 480px) {
+      .navbar {
+        padding: 15px;
+      }
+      .btn-colab {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .container-main {
+        padding: 10px;
+      }
+      .auth-card {
+        padding: 25px 20px; /* Reducción de acolchado interno para maximizar el espacio de entrada */
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin-bottom: 18px;
+      }
+      .btn-submit, .btn-google {
+        font-size: 0.9rem;
+        padding: 12px 10px;
+      }
+    }
+</style>
 </head>
 <body>
 

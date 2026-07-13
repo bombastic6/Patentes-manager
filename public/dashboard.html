@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- CONFIGURACIÓN ANTI-CACHÉ: Vital para el comportamiento del WebView en la APK -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Tu Hoja de Ruta - Diagnóstico Comercial</title>
 <style>
     :root {
@@ -222,15 +228,23 @@
         width: 100%;
         justify-content: center;
         gap: 15px;
+        flex-direction: column;
+        align-items: center;
+      }
+      .nav-link-ayuda, .btn-logout {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
       }
       .main-content { padding: 15px 10px; }
       .container { padding: 20px 15px; }
-      .header-area { margin-bottom: 25px; flex-direction: column; align-items: flex-start; }
+      .header-area { margin-bottom: 25px; flex-direction: column; align-items: flex-start; width: 100%; }
+      .header-area h2 { width: 100%; text-align: center; font-size: 1.4rem; margin-bottom: 5px; }
       .btn-edit-form { width: 100%; justify-content: center; box-sizing: border-box; }
-      .roadmap-grid { flex-direction: column; align-items: center; gap: 35px; }
+      .roadmap-grid { flex-direction: column; align-items: center; gap: 35px; width: 100%; }
       .roadmap-column { width: 100%; padding: 0; }
       .roadmap-line { display: none; }
-      .milestone-card { min-height: auto; }
+      .milestone-card { min-height: auto; width: 100%; }
     }
 </style>
 </head>
@@ -277,24 +291,24 @@
 
   let todosLosGiros = [];
 
-// URL UNIFICADA DE TU BACKEND EN PRODUCCIÓN (Indispensable para Android APK)
+  // URL UNIFICADA DE TU BACKEND EN PRODUCCIÓN (Indispensable para Android APK)
   const API_BASE_URL = "https://tupatente-backend.onrender.com";
 
   document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btnLogout').addEventListener('click', ejecutarLogout);
 
     try {
-      // CORRECCIÓN: Ahora apunta a Render de forma absoluta
-      const resGiros = await fetch(`${API_BASE_URL}/api/giros/giros?search=ALL_DATA`);
+      // CORRECCIÓN: Petición explícita con credenciales al catálogo de giros
+      const resGiros = await fetch(`${API_BASE_URL}/api/giros/giros?search=ALL_DATA`, { credentials: 'include' });
       if (resGiros.ok) {
         todosLosGiros = await resGiros.json();
       }
 
-     // Busca esta parte en el archivo de la Hoja de Ruta
-const response = await fetch(`${API_BASE_URL}/api/users/perfil-actual`, {
-  credentials: 'include' // <--- AGREGA ESTO
-});
-const resultado = await response.json();
+      // CORRECCIÓN: Inyección de credenciales seguras para mantener viva la sesión en Render
+      const response = await fetch(`${API_BASE_URL}/api/users/perfil-actual`, {
+        credentials: 'include'
+      });
+      const resultado = await response.json();
 
       if (!response.ok || !resultado.success) {
         alert('Sesión expirada o inválida. Redirigiendo...');
@@ -309,20 +323,15 @@ const resultado = await response.json();
     }
   });
 
-  // CORRECCIÓN EXTRA: El método logout local debe limpiar la cookie/sesión en el servidor de Render
+  // CORRECCIÓN EXTRA: Consolidación limpia del Cierre de Sesión con protección Anti-Caché WebView
   async function ejecutarLogout() {
     try {
-      await fetch(`${API_BASE_URL}/api/users/auth/logout`);
+      await fetch(`${API_BASE_URL}/api/users/auth/logout`, { credentials: 'include' });
     } catch (e) {
       console.error("Error al notificar logout al servidor", e);
     }
     alert('Sesión cerrada correctamente.');
-    window.location.href = 'index.html';
-  }
-
-  function ejecutarLogout() {
-    alert('Sesión cerrada correctamente.');
-    window.location.href = 'index.html';
+    window.location.href = 'index.html?nocache=' + new Date().getTime();
   }
 
   function obtenerNombreGiro(codigo) {
@@ -372,7 +381,6 @@ const resultado = await response.json();
             <div class="selection-value">Comuna: ${usuario.comuna_tramite}, Región de ${usuario.region_tramite}</div>
           </div>
         ` : '',
-        // Renderiza el botón del trámite tradicional si falta completar, pero SIEMPRE añade el botón al tutorial de comunas
         htmlBotones: `
           ${!paso1Completado ? `<a href="formulario.html" class="btn-action">Iniciar trámite</a>` : ''}
           <a href="tutorial_comuna.html" class="btn-secondary">Ver Tutorial Comunal</a>
@@ -429,7 +437,6 @@ const resultado = await response.json();
         descripcion: todosPreviosListos
           ? "Has configurado todos tus hitos comerciales previos de manera óptima."
           : "Esta fase final se ejecutará formalmente al completar los 3 hitos de diagnóstico anteriores.",
-        // AHORA SIEMPRE MUESTRA LAS OPCIONES ASIGNADAS INDEPENDIENTEMENTE DE SI ESTÁ BLOQUEADO O NO
         htmlEleccion: `
           <div class="user-selection-box" style="background-color: var(--info-bg); border-color: var(--info-border);">
             <div class="selection-label" style="color: var(--info-text);">Patente Sugerida:</div>
@@ -437,7 +444,6 @@ const resultado = await response.json();
             ${usuario.patente_secundaria ? `<div class="selection-value" style="color: #0369a1; font-size: 0.8rem; margin-top:2px;">Adicional: ${usuario.patente_secundaria}</div>` : ''}
           </div>
         `,
-        // Solo renderiza el enlace del trámite final si todos los pasos previos están OK
         htmlBotones: todosPreviosListos ? `<a href="solicitud_patente.html" class="btn-action">Iniciar trámite</a>` : ''
       }
     ];
