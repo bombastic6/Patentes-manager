@@ -92,7 +92,8 @@
   let usuarioActual = null;
 
   document.addEventListener('DOMContentLoaded', async () => {
-    const res = await fetch(`${API_BASE}/api/users/perfil-actual`);
+    // CORRECCIÓN: Agregar credentials: 'include'
+    const res = await fetch(`${API_BASE}/api/users/perfil-actual`, { credentials: 'include' });
     const data = await res.json();
     if (!data.success) return window.location.href = "login_colab.html";
     
@@ -110,7 +111,8 @@
 
   async function cargarClientes() {
       try {
-          const res = await fetch(`${API_BASE}/api/users/clientes-cobertura`);
+          // CORRECCIÓN: Agregar credentials: 'include'
+          const res = await fetch(`${API_BASE}/api/users/clientes-cobertura`, { credentials: 'include' });
           const data = await res.json();
           
           const listDisp = document.getElementById('listDisponibles');
@@ -167,9 +169,11 @@
   }
 
   async function tomarCliente(clienteId) {
+    // CORRECCIÓN: Agregar credentials: 'include'
     const res = await fetch(`${API_BASE}/api/users/colab/tomar-cliente`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ clienteId })
     });
     const data = await res.json();
@@ -188,7 +192,8 @@
   }
 
   async function cerrarSesion() {
-    await fetch(`${API_BASE}/api/users/auth/logout`);
+    // CORRECCIÓN: Agregar credentials: 'include'
+    await fetch(`${API_BASE}/api/users/auth/logout`, { credentials: 'include' });
     window.location.href = "login_colab.html";
   }
 </script>
