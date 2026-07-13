@@ -282,6 +282,48 @@
     }
     
     .text-muted { color: #64748b; font-size: 0.85rem; line-height: 1.4; margin: 8px 0 0 0; }
+
+    /* --- SOPORTE RESPONSIVO PARA TU S23 Y MÓVILES --- */
+    @media (max-width: 768px) {
+      .main-content {
+        padding: 15px 10px;
+      }
+
+      .container {
+        padding: 20px 15px;
+      }
+
+      .header-area {
+        margin-bottom: 25px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btn-edit-form {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+      }
+
+      .roadmap-grid {
+        flex-direction: column;
+        align-items: center;
+        gap: 35px; /* Espacio óptimo entre los nodos apilados */
+      }
+
+      .roadmap-column {
+        width: 100%;
+        padding: 0;
+      }
+
+      .roadmap-line {
+        display: none; /* Elimina la línea horizontal que rompe el diseño */
+      }
+
+      .milestone-card {
+        min-height: auto; /* Evita alturas colapsadas o fijas rígidas */
+      }
+    }
   </style>
 </head>
 <body>
